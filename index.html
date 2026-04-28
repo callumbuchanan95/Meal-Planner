@@ -1,0 +1,1803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Meal Planner — Prototype</title>
+<style>
+/* ─────────────────────────────────────────────
+   RESET & BASE
+───────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; background: #e8e5e1; font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+button, input, textarea { font-family: inherit; }
+button { cursor: pointer; border: none; background: none; }
+
+/* ─────────────────────────────────────────────
+   APP SHELL + PHONE FRAME
+───────────────────────────────────────────── */
+.app {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 32px 16px 60px;
+  min-height: 100vh;
+}
+
+.phone {
+  width: 390px;
+  height: 844px;
+  background: #fff;
+  border: 3px solid #1a1a1a;
+  border-radius: 44px;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.18), 0 4px 12px rgba(0,0,0,0.1);
+  flex-shrink: 0;
+}
+
+/* notch */
+.phone::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 126px; height: 32px;
+  background: #1a1a1a;
+  border-radius: 0 0 20px 20px;
+  z-index: 200;
+}
+
+/* ─────────────────────────────────────────────
+   STATUS BAR
+───────────────────────────────────────────── */
+.status-bar {
+  height: 50px;
+  background: #fff;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 0 26px 7px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 10;
+  border-bottom: 1px solid #f0f0f0;
+}
+.status-time { font-size: 13px; font-weight: 700; letter-spacing: -0.01em; }
+.status-icons { display: flex; gap: 4px; align-items: center; }
+.si { width: 15px; height: 10px; border: 1.5px solid #1a1a1a; border-radius: 2px; }
+.si.bar {
+  width: 16px; height: 10px;
+  background: linear-gradient(to right, #1a1a1a 70%, transparent 70%);
+  border-radius: 2px;
+}
+
+/* ─────────────────────────────────────────────
+   SCREENS WRAPPER
+───────────────────────────────────────────── */
+.screens-wrap {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease;
+  will-change: opacity;
+}
+.screen.active { opacity: 1; pointer-events: all; }
+
+.screen-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+.screen-scroll::-webkit-scrollbar { display: none; }
+
+/* ─────────────────────────────────────────────
+   BOTTOM NAV
+───────────────────────────────────────────── */
+.bottom-nav {
+  height: 80px;
+  background: #fff;
+  border-top: 1.5px solid #e0e0e0;
+  display: flex;
+  align-items: flex-start;
+  padding-top: 10px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 10;
+}
+.nav-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+.nav-icon-box {
+  width: 28px; height: 22px;
+  border: 2px solid #c0c0c0;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+.nav-icon-box.active { border-color: #1a1a1a; background: #1a1a1a; }
+.nav-dot { width: 4px; height: 4px; background: #c0c0c0; border-radius: 50%; transition: background 0.15s; }
+.nav-icon-box.active .nav-dot { background: #fff; }
+.nav-lbl { font-size: 10px; color: #b0b0b0; font-weight: 500; transition: all 0.15s; }
+.nav-lbl.active { color: #1a1a1a; font-weight: 700; }
+
+/* ─────────────────────────────────────────────
+   FULL-SCREEN SHEETS (recipe detail, add recipe)
+   – cover the entire phone incl. nav
+───────────────────────────────────────────── */
+.full-sheet {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(102%);
+  transition: transform 0.26s cubic-bezier(0.32, 0.72, 0, 1);
+  will-change: transform;
+}
+.full-sheet.open { transform: translateY(0); }
+
+/* ─────────────────────────────────────────────
+   BOTTOM SHEET OVERLAY (recipe picker)
+───────────────────────────────────────────── */
+.bsheet-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 60;
+  background: rgba(0,0,0,0);
+  pointer-events: none;
+  transition: background 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.bsheet-overlay.open { background: rgba(0,0,0,0.45); pointer-events: all; }
+
+.bottom-sheet {
+  background: #fff;
+  border-radius: 18px 18px 0 0;
+  max-height: 72%;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(100%);
+  transition: transform 0.26s cubic-bezier(0.32, 0.72, 0, 1);
+  will-change: transform;
+  box-shadow: 0 -4px 24px rgba(0,0,0,0.1);
+}
+.bsheet-overlay.open .bottom-sheet { transform: translateY(0); }
+
+.sheet-handle {
+  width: 38px; height: 4px;
+  background: #d8d8d8; border-radius: 2px;
+  margin: 10px auto 0;
+  flex-shrink: 0;
+}
+
+/* ─────────────────────────────────────────────
+   MODAL OVERLAY (slot picker)
+───────────────────────────────────────────── */
+.modal-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 90;
+  background: rgba(0,0,0,0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  pointer-events: none;
+  transition: background 0.2s ease;
+}
+.modal-overlay.open { background: rgba(0,0,0,0.52); pointer-events: all; }
+
+.modal-card {
+  background: #fff;
+  border-radius: 16px;
+  width: 100%;
+  overflow: hidden;
+  transform: scale(0.92);
+  opacity: 0;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+  max-height: calc(100% - 48px);
+  display: flex;
+  flex-direction: column;
+}
+.modal-overlay.open .modal-card { transform: scale(1); opacity: 1; }
+
+/* ─────────────────────────────────────────────
+   TOAST
+───────────────────────────────────────────── */
+.toast {
+  position: absolute;
+  bottom: 96px;
+  left: 50%;
+  transform: translateX(-50%) translateY(8px);
+  background: #1a1a1a;
+  color: #fff;
+  padding: 9px 20px;
+  border-radius: 24px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  z-index: 120;
+  pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ─────────────────────────────────────────────
+   SHARED COMPONENTS
+───────────────────────────────────────────── */
+.img-rect { background: #d4d4d4; border-radius: 6px; }
+
+.tag-pill {
+  padding: 4px 10px;
+  border: 1.5px solid #d4d4d4;
+  border-radius: 20px;
+  font-size: 11px;
+  color: #666;
+  white-space: nowrap;
+}
+.tag-pill.active { border-color: #1a1a1a; background: #1a1a1a; color: #fff; }
+
+.divider { border: none; border-top: 1px solid #ebebeb; margin: 14px 0; }
+
+.section-title { font-size: 14px; font-weight: 800; margin-bottom: 10px; letter-spacing: -0.01em; }
+
+/* ─────────────────────────────────────────────
+   ████  SCREEN 1: PLANNER  ████
+───────────────────────────────────────────── */
+.planner-header {
+  padding: 12px 16px 10px;
+  border-bottom: 1.5px solid #ebebeb;
+  flex-shrink: 0;
+}
+
+/* progress bar */
+.prog-wrap { margin-bottom: 9px; }
+.prog-meta { display: flex; justify-content: space-between; font-size: 10.5px; color: #aaa; margin-bottom: 5px; }
+.prog-meta span:first-child { font-weight: 600; color: #888; }
+.prog-track { height: 3px; background: #ebebeb; border-radius: 2px; }
+.prog-fill { height: 100%; background: #1a1a1a; border-radius: 2px; transition: width 0.35s ease; width: 0%; }
+
+.week-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 9px; }
+.week-range { font-size: 16px; font-weight: 800; letter-spacing: -0.02em; }
+.week-arrows { display: flex; gap: 6px; }
+.week-arrow {
+  width: 28px; height: 28px;
+  border: 1.5px solid #d4d4d4;
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; color: #666; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.week-arrow:active { background: #f5f5f5; }
+
+.gen-btn {
+  width: 100%; padding: 11px;
+  border-radius: 10px;
+  font-size: 13px; font-weight: 700;
+  text-align: center;
+  background: #1a1a1a; color: #fff;
+  border: 2px solid #1a1a1a;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.15s;
+  cursor: pointer;
+}
+.gen-btn:active { opacity: 0.75; }
+.gen-btn.inactive {
+  background: #fff; color: #ccc; border-color: #e4e4e4;
+  cursor: default;
+}
+
+/* day blocks */
+.day-block { border-bottom: 1px solid #ebebeb; padding: 10px 16px; }
+.day-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 7px; }
+.day-name { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #666; }
+.day-date { font-size: 10px; color: #bbb; }
+.day-slots { display: flex; flex-direction: column; gap: 5px; }
+
+.meal-row { display: flex; align-items: center; gap: 7px; }
+.meal-lbl { font-size: 8px; text-transform: uppercase; letter-spacing: 0.07em; color: #ccc; width: 14px; flex-shrink: 0; }
+
+.slot-empty {
+  flex: 1; height: 34px;
+  border: 1.5px dashed #d8d8d8;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  color: #d0d0d0; font-size: 20px; font-weight: 300;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+  transition: border-color 0.15s, color 0.15s;
+  user-select: none;
+}
+.slot-empty:active { border-color: #aaa; color: #aaa; }
+
+.slot-filled {
+  flex: 1; height: 38px;
+  border: 1.5px solid #d8d8d8;
+  border-radius: 8px;
+  background: #fafafa;
+  display: flex; align-items: center;
+  gap: 8px; padding: 0 8px;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+  transition: background 0.12s;
+}
+.slot-filled:active { background: #f0f0f0; }
+.slot-thumb { width: 28px; height: 28px; background: #d0d0d0; border-radius: 5px; flex-shrink: 0; }
+.slot-name { font-size: 12px; font-weight: 500; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.slot-remove {
+  width: 18px; height: 18px;
+  display: flex; align-items: center; justify-content: center;
+  color: #ccc; font-size: 13px; flex-shrink: 0;
+  border-radius: 50%; -webkit-tap-highlight-color: transparent;
+}
+.slot-remove:active { background: #eee; color: #888; }
+
+/* quick-add panel */
+.qa-strip { border-top: 1.5px solid #e4e4e4; background: #f7f7f6; }
+.qa-handle { width: 38px; height: 4px; background: #d4d4d4; border-radius: 2px; margin: 9px auto 0; }
+.qa-hdr { display: flex; align-items: center; justify-content: space-between; padding: 6px 16px 7px; }
+.qa-title { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #999; }
+.qa-see-all { font-size: 11px; color: #555; font-weight: 600; cursor: pointer; }
+.qa-row {
+  display: flex; gap: 10px;
+  overflow-x: auto; padding: 0 16px 14px;
+  -webkit-overflow-scrolling: touch;
+}
+.qa-row::-webkit-scrollbar { display: none; }
+.qa-card { flex-shrink: 0; width: 78px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.qa-card:active .qa-img-box { opacity: 0.75; }
+.qa-img-box { width: 78px; height: 60px; background: #d4d4d4; border-radius: 8px; margin-bottom: 4px; transition: opacity 0.12s; }
+.qa-lbl { font-size: 10px; font-weight: 500; text-align: center; line-height: 1.3; color: #333; }
+
+/* ─────────────────────────────────────────────
+   ████  SCREEN 2: LIBRARY  ████
+───────────────────────────────────────────── */
+.lib-header {
+  padding: 14px 16px 10px;
+  border-bottom: 1.5px solid #ebebeb;
+  flex-shrink: 0;
+}
+.lib-hdr-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.lib-title { font-size: 18px; font-weight: 800; letter-spacing: -0.02em; }
+.sort-btn {
+  padding: 6px 12px;
+  border: 1.5px solid #d4d4d4;
+  border-radius: 7px;
+  font-size: 11px; color: #666;
+  cursor: pointer;
+}
+
+.search-bar {
+  height: 40px;
+  border: 1.5px solid #d8d8d8;
+  border-radius: 10px;
+  background: #f5f5f5;
+  display: flex; align-items: center;
+  gap: 9px; padding: 0 12px;
+  margin-bottom: 11px;
+  transition: border-color 0.15s;
+}
+.search-bar:focus-within { border-color: #aaa; }
+.search-icon { width: 15px; height: 15px; border: 2px solid #aaa; border-radius: 50%; flex-shrink: 0; }
+.search-input {
+  flex: 1; background: none; border: none; outline: none;
+  font-size: 13px; color: #333;
+}
+.search-input::placeholder { color: #bbb; }
+
+.filter-row { display: flex; gap: 7px; overflow-x: auto; padding-bottom: 2px; }
+.filter-row::-webkit-scrollbar { display: none; }
+.filter-chip {
+  padding: 5px 13px;
+  border: 1.5px solid #d4d4d4;
+  border-radius: 20px;
+  font-size: 12px; white-space: nowrap; color: #666;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+  transition: all 0.14s;
+  user-select: none;
+}
+.filter-chip.active { border-color: #1a1a1a; background: #1a1a1a; color: #fff; }
+
+.recipe-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 14px 16px 100px;
+}
+
+.recipe-card {
+  border: 1.5px solid #e4e4e4;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fff;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+  transition: transform 0.14s;
+}
+.recipe-card:active { transform: scale(0.97); }
+.rc-img { width: 100%; height: 96px; background: #d4d4d4; }
+.rc-body { padding: 8px 9px 9px; }
+.rc-title { font-size: 12px; font-weight: 700; margin-bottom: 3px; line-height: 1.3; }
+.rc-meta { font-size: 10.5px; color: #aaa; margin-bottom: 6px; }
+.rc-tags { display: flex; gap: 4px; flex-wrap: wrap; }
+.rc-tag { padding: 2px 6px; border: 1px solid #ddd; border-radius: 10px; font-size: 9.5px; color: #888; }
+
+.fab {
+  position: absolute;
+  bottom: 16px; right: 18px;
+  width: 52px; height: 52px;
+  background: #1a1a1a; color: #fff;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; font-weight: 200; line-height: 1;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.28);
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+  z-index: 5;
+  transition: transform 0.14s;
+}
+.fab:active { transform: scale(0.93); }
+
+/* ─────────────────────────────────────────────
+   ████  FULL SHEET: ADD RECIPE  ████
+───────────────────────────────────────────── */
+.add-sheet-hdr {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 48px 16px 12px;
+  border-bottom: 1.5px solid #ebebeb;
+  flex-shrink: 0;
+}
+.add-sheet-title { font-size: 17px; font-weight: 800; letter-spacing: -0.02em; }
+.close-btn {
+  width: 28px; height: 28px;
+  border: 1.5px solid #ccc; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; color: #888; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.12s;
+}
+.close-btn:active { background: #f0f0f0; }
+
+.cap-tabs { display: flex; gap: 8px; padding: 12px 16px; border-bottom: 1.5px solid #ebebeb; flex-shrink: 0; }
+.cap-tab {
+  flex: 1; padding: 9px 4px 8px;
+  border: 1.5px solid #d8d8d8; border-radius: 9px;
+  text-align: center; background: #fff;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+  transition: all 0.14s;
+}
+.cap-tab.active { border-color: #1a1a1a; background: #1a1a1a; color: #fff; }
+.cap-icon { font-size: 18px; margin-bottom: 3px; display: block; }
+.cap-lbl { font-size: 10.5px; font-weight: 600; }
+
+.cap-content { display: none; flex-direction: column; flex: 1; overflow: hidden; min-height: 0; }
+.cap-content.active { display: flex; }
+
+/* manual form */
+.form-scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.form-scroll::-webkit-scrollbar { display: none; }
+
+.form-group { padding: 12px 16px 8px; border-bottom: 1px solid #f2f2f2; }
+.form-group-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #aaa; margin-bottom: 10px; }
+
+.field { margin-bottom: 10px; }
+.field-lbl { font-size: 10.5px; font-weight: 700; color: #777; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.06em; }
+.field-inp {
+  width: 100%; height: 40px;
+  border: 1.5px solid #d8d8d8; border-radius: 8px;
+  background: #fafafa; padding: 0 11px;
+  font-size: 13px; color: #333; outline: none;
+}
+.field-inp:focus { border-color: #999; }
+
+.two-col { display: flex; gap: 10px; }
+.two-col .field { flex: 1; }
+
+.row-with-img { display: flex; gap: 12px; align-items: flex-start; }
+.row-grow { flex: 1; }
+
+.img-upload-box {
+  width: 80px; height: 80px;
+  border: 2px dashed #ccc; border-radius: 9px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 4px; color: #ccc; font-size: 22px;
+  cursor: pointer; flex-shrink: 0;
+}
+.img-upload-box span { font-size: 9px; color: #bbb; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+
+/* ingredient rows */
+.ing-cols { display: flex; gap: 6px; margin-bottom: 5px; padding-right: 28px; }
+.ing-col-h { font-size: 9px; text-transform: uppercase; letter-spacing: 0.07em; color: #ccc; font-weight: 700; }
+
+.ing-row { display: flex; gap: 6px; align-items: center; margin-bottom: 7px; }
+.ing-qty, .ing-unit, .ing-name {
+  border: 1.5px solid #d8d8d8; border-radius: 7px;
+  background: #fafafa; padding: 0 7px;
+  height: 36px; font-size: 12px; outline: none;
+}
+.ing-qty { width: 48px; }
+.ing-unit { width: 54px; }
+.ing-name { flex: 1; }
+.ing-qty:focus, .ing-unit:focus, .ing-name:focus { border-color: #999; }
+.ing-del {
+  width: 22px; height: 22px;
+  border: 1.5px solid #e0e0e0; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: #ccc; font-size: 15px; cursor: pointer; flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.12s;
+}
+.ing-del:active { border-color: #e55; color: #e55; }
+.add-ing-btn {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 700; color: #555;
+  cursor: pointer; padding: 4px 0;
+  -webkit-tap-highlight-color: transparent;
+}
+.add-ing-circle {
+  width: 20px; height: 20px;
+  border: 1.5px solid #999; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; color: #666;
+}
+
+.method-ta {
+  width: 100%; min-height: 90px;
+  border: 1.5px solid #d8d8d8; border-radius: 8px;
+  background: #fafafa; padding: 10px 11px;
+  font-size: 13px; line-height: 1.55;
+  resize: none; outline: none;
+}
+.method-ta:focus { border-color: #999; }
+
+.save-btn-wrap { padding: 12px 16px 20px; }
+.save-btn {
+  width: 100%; padding: 14px;
+  background: #1a1a1a; color: #fff;
+  border-radius: 11px;
+  font-size: 15px; font-weight: 700;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.15s;
+}
+.save-btn:active { opacity: 0.78; }
+
+/* url mode */
+.url-mode { padding: 20px 16px; display: flex; flex-direction: column; gap: 12px; }
+.url-inp {
+  width: 100%; height: 44px;
+  border: 1.5px solid #d8d8d8; border-radius: 10px;
+  background: #fafafa; padding: 0 12px;
+  font-size: 13px; outline: none;
+}
+.url-import-btn {
+  padding: 13px; background: #1a1a1a; color: #fff;
+  border-radius: 10px; font-size: 14px; font-weight: 700;
+  text-align: center; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.url-import-btn:active { opacity: 0.78; }
+.url-note { font-size: 11.5px; color: #bbb; text-align: center; line-height: 1.5; }
+
+/* photo mode */
+.photo-mode {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 16px; padding: 40px 16px;
+}
+.camera-box {
+  width: 200px; height: 170px;
+  background: #ececec; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 52px;
+}
+.photo-note { font-size: 12px; color: #bbb; text-align: center; line-height: 1.55; }
+
+/* ─────────────────────────────────────────────
+   ████  FULL SHEET: RECIPE DETAIL  ████
+───────────────────────────────────────────── */
+.detail-hero {
+  width: 100%; height: 220px;
+  background: #c8c8c8;
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; color: #bbb; font-style: italic;
+  flex-shrink: 0;
+}
+.hero-overlay-btn {
+  position: absolute; top: 46px;
+  width: 32px; height: 32px;
+  background: rgba(255,255,255,0.88);
+  border-radius: 50%;
+  border: 1px solid rgba(0,0,0,0.08);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; color: #333;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+  transition: background 0.12s;
+}
+.hero-overlay-btn:active { background: rgba(255,255,255,0.7); }
+
+.detail-scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+.detail-scroll::-webkit-scrollbar { display: none; }
+
+.detail-body { padding: 16px 16px 4px; }
+.detail-title { font-size: 22px; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 3px; line-height: 1.2; }
+.detail-source { font-size: 12px; color: #aaa; margin-bottom: 14px; }
+
+.meta-row {
+  display: flex; margin-bottom: 14px;
+  border: 1.5px solid #ebebeb; border-radius: 10px; overflow: hidden;
+}
+.meta-cell {
+  flex: 1; padding: 9px 8px;
+  border-right: 1.5px solid #ebebeb;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.meta-cell:last-child { border-right: none; }
+.meta-lbl { font-size: 9px; text-transform: uppercase; letter-spacing: 0.07em; color: #bbb; font-weight: 700; }
+.meta-val { font-size: 14px; font-weight: 700; }
+
+.detail-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 0; }
+
+.ing-list-item {
+  display: flex; gap: 10px;
+  padding: 7px 0; border-bottom: 1px solid #f2f2f2;
+  font-size: 13px;
+}
+.ing-amt { color: #aaa; min-width: 80px; font-size: 12px; flex-shrink: 0; }
+
+.method-step { display: flex; gap: 10px; margin-bottom: 12px; font-size: 13px; line-height: 1.55; }
+.step-num {
+  width: 22px; height: 22px;
+  border: 2px solid #1a1a1a; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 800; flex-shrink: 0; margin-top: 2px;
+}
+
+.add-plan-bar {
+  background: #fff;
+  border-top: 1px solid #ebebeb;
+  padding: 10px 16px 12px;
+  flex-shrink: 0;
+}
+.add-plan-btn {
+  width: 100%; padding: 14px;
+  background: #1a1a1a; color: #fff;
+  border-radius: 11px;
+  font-size: 15px; font-weight: 700;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.15s;
+}
+.add-plan-btn:active { opacity: 0.78; }
+
+/* ─────────────────────────────────────────────
+   RECIPE PICKER BOTTOM SHEET
+───────────────────────────────────────────── */
+.picker-hdr {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px 8px; flex-shrink: 0;
+}
+.picker-title { font-size: 15px; font-weight: 800; }
+.picker-x { font-size: 22px; color: #ccc; cursor: pointer; line-height: 1; -webkit-tap-highlight-color: transparent; }
+.picker-x:active { color: #888; }
+
+.picker-list { overflow-y: auto; flex: 1; -webkit-overflow-scrolling: touch; }
+.picker-list::-webkit-scrollbar { display: none; }
+.picker-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 16px;
+  border-bottom: 1px solid #f5f5f5;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+  transition: background 0.1s;
+}
+.picker-item:active { background: #f8f8f8; }
+.picker-thumb { width: 44px; height: 44px; background: #d4d4d4; border-radius: 8px; flex-shrink: 0; }
+.picker-info { flex: 1; }
+.picker-name { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+.picker-meta { font-size: 12px; color: #aaa; }
+.picker-chevron { color: #d0d0d0; font-size: 18px; }
+
+/* ─────────────────────────────────────────────
+   SLOT PICKER MODAL
+───────────────────────────────────────────── */
+.slot-modal-hdr {
+  padding: 16px;
+  border-bottom: 1px solid #ebebeb;
+  font-size: 15px; font-weight: 800;
+  flex-shrink: 0;
+}
+.slot-modal-hdr span { font-weight: 500; color: #666; }
+
+.slot-modal-scroll { overflow-y: auto; flex: 1; -webkit-overflow-scrolling: touch; }
+.slot-modal-scroll::-webkit-scrollbar { display: none; }
+
+.slot-day-group { }
+.slot-day-label {
+  font-size: 10px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.09em;
+  color: #999; padding: 8px 16px 4px;
+  background: #fafafa;
+  border-bottom: 1px solid #f0f0f0;
+}
+.slot-option {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 11px 16px;
+  font-size: 13px;
+  border-bottom: 1px solid #f8f8f8;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+  transition: background 0.1s;
+}
+.slot-option:active { background: #f5f5f5; }
+.slot-option.taken { color: #ccc; pointer-events: none; }
+.slot-taken-name { font-size: 11px; color: #ccc; }
+.slot-chevron { color: #d0d0d0; }
+.slot-modal-cancel {
+  padding: 14px 16px;
+  border-top: 1.5px solid #ebebeb;
+  text-align: center;
+  font-size: 14px; font-weight: 600; color: #999;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+  flex-shrink: 0;
+}
+.slot-modal-cancel:active { background: #f8f8f8; }
+
+/* ─────────────────────────────────────────────
+   ████  SCREEN 5: SHOPPING LIST  ████
+───────────────────────────────────────────── */
+.shop-hdr {
+  padding: 14px 16px 12px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1.5px solid #ebebeb;
+  flex-shrink: 0;
+}
+.shop-title { font-size: 18px; font-weight: 800; letter-spacing: -0.02em; }
+.share-btn {
+  width: 34px; height: 34px;
+  border: 1.5px solid #d4d4d4; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; color: #555;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+  transition: background 0.12s;
+}
+.share-btn:active { background: #f0f0f0; }
+
+.shop-subtitle { padding: 7px 16px 9px; font-size: 12px; color: #aaa; border-bottom: 1px solid #f0f0f0; }
+
+.shop-progress { display: flex; align-items: center; gap: 9px; padding: 8px 16px; background: #fafafa; border-bottom: 1px solid #ebebeb; }
+.sp-track { flex: 1; height: 4px; background: #e8e8e8; border-radius: 2px; }
+.sp-fill { height: 100%; background: #1a1a1a; border-radius: 2px; transition: width 0.3s ease; }
+.sp-label { font-size: 11px; color: #aaa; white-space: nowrap; }
+
+.list-cat { }
+.list-cat-hdr {
+  padding: 7px 16px 5px;
+  font-size: 10px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  color: #999; background: #f7f7f7;
+  border-bottom: 1px solid #f0f0f0;
+}
+.list-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 16px;
+  border-bottom: 1px solid #f5f5f5;
+  transition: opacity 0.2s;
+}
+.list-item.is-done { opacity: 0.42; }
+.checkbox {
+  width: 22px; height: 22px;
+  border: 2px solid #ccc; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.14s;
+}
+.checkbox.checked { background: #1a1a1a; border-color: #1a1a1a; color: #fff; font-size: 11px; font-weight: 700; }
+.item-name { flex: 1; font-size: 13.5px; }
+.item-name.done { text-decoration: line-through; color: #bbb; }
+.item-qty { font-size: 12px; color: #bbb; }
+.item-qty.done { color: #d0d0d0; }
+
+.done-section-hdr {
+  padding: 7px 16px 5px;
+  font-size: 10px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  color: #ccc; background: #fafafa;
+  border-top: 1.5px solid #ebebeb;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.add-manual-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 13px 16px;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+  border-top: 1px solid #ebebeb;
+  transition: background 0.12s;
+}
+.add-manual-row:active { background: #f8f8f8; }
+.add-manual-icon {
+  width: 26px; height: 26px;
+  border: 1.5px dashed #bbb; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: #bbb; font-size: 16px;
+}
+.add-manual-lbl { font-size: 13px; font-weight: 600; color: #666; }
+.manual-input {
+  flex: 1; border: none; background: none; outline: none;
+  font-size: 13.5px; font-family: inherit;
+}
+
+/* ─────────────────────────────────────────────
+   RESPONSIVE: fill screen on actual mobile
+───────────────────────────────────────────── */
+@media (max-width: 440px) {
+  .app { padding: 0; align-items: stretch; min-height: 100vh; }
+  .phone {
+    width: 100%; height: 100vh; height: 100dvh;
+    border-radius: 0; border: none;
+    box-shadow: none;
+  }
+  .phone::before { display: none; }
+  .status-bar { padding-top: 6px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="phone">
+
+  <!-- STATUS BAR -->
+  <div class="status-bar">
+    <span class="status-time" id="js-clock">9:41</span>
+    <div class="status-icons">
+      <div class="si signal" style="background:linear-gradient(to right,#1a1a1a 60%,transparent 60%)"></div>
+      <div class="si wifi"></div>
+      <div class="si bar"></div>
+    </div>
+  </div>
+
+  <!-- SCREENS WRAP -->
+  <div class="screens-wrap">
+
+    <!-- ══════ SCREEN: PLANNER ══════ -->
+    <div id="scr-planner" class="screen active">
+      <div class="planner-header">
+        <div class="prog-wrap">
+          <div class="prog-meta">
+            <span>Week progress</span>
+            <span id="js-prog-text">0 / 21 slots filled</span>
+          </div>
+          <div class="prog-track"><div class="prog-fill" id="js-prog-fill"></div></div>
+        </div>
+        <div class="week-nav">
+          <div class="week-range">28 Apr – 4 May</div>
+          <div class="week-arrows">
+            <div class="week-arrow">‹</div>
+            <div class="week-arrow">›</div>
+          </div>
+        </div>
+        <button class="gen-btn inactive" id="js-gen-btn" onclick="APP.goToShop()">Generate shopping list</button>
+      </div>
+      <div class="screen-scroll">
+        <div id="js-planner-days"></div>
+        <div class="qa-strip">
+          <div class="qa-handle"></div>
+          <div class="qa-hdr">
+            <div class="qa-title">Recent recipes</div>
+            <div class="qa-see-all" onclick="APP.switchTab('library')">See all →</div>
+          </div>
+          <div class="qa-row" id="js-qa-row"></div>
+        </div>
+        <div style="height:16px"></div>
+      </div>
+    </div>
+
+    <!-- ══════ SCREEN: LIBRARY ══════ -->
+    <div id="scr-library" class="screen">
+      <div class="lib-header">
+        <div class="lib-hdr-row">
+          <div class="lib-title">Recipes</div>
+          <div class="sort-btn">Sort ↕</div>
+        </div>
+        <div class="search-bar">
+          <div class="search-icon"></div>
+          <input class="search-input" type="search" placeholder="Search recipes…" id="js-search">
+        </div>
+        <div class="filter-row" id="js-filter-row"></div>
+      </div>
+      <div class="screen-scroll">
+        <div class="recipe-grid" id="js-recipe-grid"></div>
+      </div>
+      <div class="fab" onclick="APP.openAddSheet()">+</div>
+    </div>
+
+    <!-- ══════ SCREEN: SHOP ══════ -->
+    <div id="scr-shop" class="screen">
+      <div class="shop-hdr">
+        <div class="shop-title">Shopping list</div>
+        <div class="share-btn" onclick="APP.shareList()">↑</div>
+      </div>
+      <div class="shop-subtitle" id="js-shop-sub">Week of 28 Apr – 4 May · 0 meals planned</div>
+      <div class="shop-progress">
+        <div class="sp-track"><div class="sp-fill" id="js-sp-fill" style="width:0%"></div></div>
+        <div class="sp-label" id="js-sp-label">0 / 0 checked</div>
+      </div>
+      <div class="screen-scroll">
+        <div id="js-shop-list"></div>
+        <div class="add-manual-row" onclick="APP.addManualItem()">
+          <div class="add-manual-icon">+</div>
+          <div class="add-manual-lbl">Add item manually</div>
+        </div>
+        <div style="height:20px"></div>
+      </div>
+    </div>
+
+  </div><!-- /screens-wrap -->
+
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav">
+    <div class="nav-tab" onclick="APP.switchTab('planner')">
+      <div class="nav-icon-box active" id="js-nav-planner"><div class="nav-dot"></div></div>
+      <div class="nav-lbl active" id="js-navlbl-planner">Planner</div>
+    </div>
+    <div class="nav-tab" onclick="APP.switchTab('library')">
+      <div class="nav-icon-box" id="js-nav-library"><div class="nav-dot"></div></div>
+      <div class="nav-lbl" id="js-navlbl-library">Library</div>
+    </div>
+    <div class="nav-tab" onclick="APP.switchTab('shop')">
+      <div class="nav-icon-box" id="js-nav-shop"><div class="nav-dot"></div></div>
+      <div class="nav-lbl" id="js-navlbl-shop">Shop</div>
+    </div>
+  </div>
+
+  <!-- ══════ FULL SHEET: RECIPE DETAIL ══════ -->
+  <div class="full-sheet" id="js-detail-sheet">
+    <div class="detail-hero" id="js-detail-hero">
+      <div class="hero-overlay-btn" style="left:14px" onclick="APP.closeDetail()">‹</div>
+      <div class="hero-overlay-btn" style="right:14px">···</div>
+      recipe photo
+    </div>
+    <div class="detail-scroll">
+      <div class="detail-body" id="js-detail-body"></div>
+    </div>
+    <div class="add-plan-bar">
+      <button class="add-plan-btn" onclick="APP.openSlotPicker()">Add to plan</button>
+    </div>
+  </div>
+
+  <!-- ══════ FULL SHEET: ADD RECIPE ══════ -->
+  <div class="full-sheet" id="js-add-sheet">
+    <div class="add-sheet-hdr">
+      <div class="add-sheet-title">Add Recipe</div>
+      <div class="close-btn" onclick="APP.closeAddSheet()">✕</div>
+    </div>
+    <div class="cap-tabs">
+      <div class="cap-tab" data-mode="url" onclick="APP.setCapMode('url')">
+        <span class="cap-icon">🔗</span><div class="cap-lbl">Paste URL</div>
+      </div>
+      <div class="cap-tab active" data-mode="manual" onclick="APP.setCapMode('manual')">
+        <span class="cap-icon">✏️</span><div class="cap-lbl">Manual</div>
+      </div>
+      <div class="cap-tab" data-mode="photo" onclick="APP.setCapMode('photo')">
+        <span class="cap-icon">📷</span><div class="cap-lbl">From photo</div>
+      </div>
+    </div>
+
+    <!-- URL mode -->
+    <div class="cap-content" id="cap-url">
+      <div class="url-mode">
+        <div class="field-lbl">Recipe URL</div>
+        <input class="url-inp" type="url" placeholder="https://…">
+        <div class="url-import-btn" onclick="APP.stubImport()">Import recipe</div>
+        <div class="url-note">Works with most recipe sites. Some may block importing — use manual entry as a fallback.</div>
+      </div>
+    </div>
+
+    <!-- Manual mode -->
+    <div class="cap-content active" id="cap-manual">
+      <div class="form-scroll">
+        <div class="form-group">
+          <div class="form-group-label">Basic info</div>
+          <div class="row-with-img">
+            <div class="row-grow">
+              <div class="field">
+                <div class="field-lbl">Title</div>
+                <input class="field-inp" type="text" id="f-title" placeholder="Recipe name">
+              </div>
+              <div class="field">
+                <div class="field-lbl">Source</div>
+                <input class="field-inp" type="text" id="f-source" placeholder="e.g. Ottolenghi Simple p.48">
+              </div>
+            </div>
+            <div>
+              <div class="field-lbl">Photo</div>
+              <div class="img-upload-box">+<span>Add</span></div>
+            </div>
+          </div>
+          <div class="two-col">
+            <div class="field"><div class="field-lbl">Serves</div><input class="field-inp" type="number" id="f-serves" placeholder="2"></div>
+            <div class="field"><div class="field-lbl">Prep time</div><input class="field-inp" type="text" id="f-prep" placeholder="10 min"></div>
+          </div>
+          <div class="two-col">
+            <div class="field"><div class="field-lbl">Cook time</div><input class="field-inp" type="text" id="f-cook" placeholder="30 min"></div>
+            <div class="field"><div class="field-lbl">Tags</div><input class="field-inp" type="text" id="f-tags" placeholder="quick, vegetarian…"></div>
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="form-group-label">Ingredients</div>
+          <div class="ing-cols">
+            <div class="ing-col-h" style="width:48px">Qty</div>
+            <div class="ing-col-h" style="width:54px">Unit</div>
+            <div class="ing-col-h" style="flex:1;padding-left:7px">Ingredient</div>
+          </div>
+          <div id="js-ing-list"></div>
+          <div class="add-ing-btn" onclick="APP.addIngRow()">
+            <div class="add-ing-circle">+</div> Add ingredient
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="form-group-label">Method</div>
+          <textarea class="method-ta" id="f-method" placeholder="Write or paste steps — one per line…" rows="5"></textarea>
+        </div>
+        <div class="save-btn-wrap">
+          <button class="save-btn" onclick="APP.saveRecipe()">Save recipe</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Photo mode -->
+    <div class="cap-content" id="cap-photo">
+      <div class="photo-mode">
+        <div class="camera-box">📷</div>
+        <div class="photo-note">Take a photo of a printed recipe and we'll extract the ingredients and steps automatically.<br><br><em>Camera access not wired in prototype.</em></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════ BOTTOM SHEET: RECIPE PICKER ══════ -->
+  <div class="bsheet-overlay" id="js-picker-overlay" onclick="APP.handlePickerBg(event)">
+    <div class="bottom-sheet">
+      <div class="sheet-handle"></div>
+      <div class="picker-hdr">
+        <div class="picker-title" id="js-picker-title">Add to slot</div>
+        <div class="picker-x" onclick="APP.closePicker()">×</div>
+      </div>
+      <div class="picker-list" id="js-picker-list"></div>
+    </div>
+  </div>
+
+  <!-- ══════ MODAL: SLOT PICKER ══════ -->
+  <div class="modal-overlay" id="js-slot-overlay" onclick="APP.handleSlotBg(event)">
+    <div class="modal-card">
+      <div class="slot-modal-hdr">Add <span id="js-slot-recipe-name">"…"</span> to plan</div>
+      <div class="slot-modal-scroll" id="js-slot-options"></div>
+      <div class="slot-modal-cancel" onclick="APP.closeSlotPicker()">Cancel</div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="js-toast"></div>
+
+</div><!-- /phone -->
+</div><!-- /app -->
+
+<script>
+// ─────────────────────────────────────────────────────────────
+// DATA
+// ─────────────────────────────────────────────────────────────
+
+const RECIPES_DEFAULT = [
+  {
+    id: 1, name: 'Chicken stir fry',
+    time: '30 mins', prep: '10 min', cook: '20 min', serves: 2,
+    source: 'Personal',
+    tags: ['quick', 'chicken'],
+    ingredients: [
+      { qty:'500', unit:'g',      name:'Chicken breast, sliced' },
+      { qty:'2',   unit:'tbsp',   name:'Soy sauce' },
+      { qty:'1',   unit:'tbsp',   name:'Sesame oil' },
+      { qty:'3',   unit:'cloves', name:'Garlic, minced' },
+      { qty:'1',   unit:'piece',  name:'Fresh ginger, grated' },
+      { qty:'1',   unit:'',       name:'Bell pepper, sliced' },
+      { qty:'1',   unit:'bunch',  name:'Spring onions' },
+    ],
+    method: [
+      'Marinate chicken in soy sauce and sesame oil for 10 minutes.',
+      'Heat oil in a wok over high heat. Add garlic and ginger, stir for 30 seconds.',
+      'Add chicken and stir-fry for 5–6 minutes until cooked through.',
+      'Add pepper and spring onions. Toss for 2 minutes. Serve immediately with rice.'
+    ]
+  },
+  {
+    id: 2, name: 'Shakshuka',
+    time: '25 mins', prep: '5 min', cook: '25 min', serves: 4,
+    source: 'Ottolenghi Simple, p.48',
+    tags: ['breakfast', 'vegetarian'],
+    ingredients: [
+      { qty:'2',   unit:'tbsp',   name:'Olive oil' },
+      { qty:'1',   unit:'medium', name:'Onion, sliced' },
+      { qty:'1',   unit:'',       name:'Red bell pepper, sliced' },
+      { qty:'3',   unit:'cloves', name:'Garlic, minced' },
+      { qty:'1',   unit:'tsp',    name:'Cumin' },
+      { qty:'1',   unit:'tsp',    name:'Paprika' },
+      { qty:'400', unit:'g',      name:'Tinned tomatoes' },
+      { qty:'4',   unit:'',       name:'Eggs' },
+      { qty:'50',  unit:'g',      name:'Feta cheese' },
+    ],
+    method: [
+      'Heat oil in a large frying pan. Add onion and pepper, cook 8 min until soft.',
+      'Add garlic, cumin and paprika. Cook 1 min until fragrant.',
+      'Pour in tomatoes, season well. Simmer 10 min until thickened.',
+      'Make 4 wells, crack in eggs. Cover and cook 5–7 min until whites are set. Crumble over feta and serve with bread.'
+    ]
+  },
+  {
+    id: 3, name: 'Lemon pasta',
+    time: '20 mins', prep: '5 min', cook: '15 min', serves: 2,
+    source: 'Personal',
+    tags: ['quick', 'pasta'],
+    ingredients: [
+      { qty:'400', unit:'g',       name:'Spaghetti' },
+      { qty:'2',   unit:'',        name:'Lemons, zest & juice' },
+      { qty:'40',  unit:'g',       name:'Parmesan, grated' },
+      { qty:'30',  unit:'g',       name:'Butter' },
+      { qty:'2',   unit:'cloves',  name:'Garlic, minced' },
+      { qty:'2',   unit:'tbsp',    name:'Olive oil' },
+      { qty:'1',   unit:'handful', name:'Fresh parsley, chopped' },
+    ],
+    method: [
+      'Cook pasta in heavily salted boiling water until al dente. Reserve 1 cup pasta water before draining.',
+      'Warm olive oil and butter together gently. Add garlic and cook 1 min.',
+      'Toss drained pasta with lemon zest, juice, butter mixture and most of the parmesan.',
+      'Loosen with pasta water as needed. Season well, serve with extra parmesan and parsley.'
+    ]
+  },
+  {
+    id: 4, name: 'Beef tacos',
+    time: '40 mins', prep: '10 min', cook: '30 min', serves: 4,
+    source: 'Personal',
+    tags: ['meat', 'mexican'],
+    ingredients: [
+      { qty:'400', unit:'g',    name:'Beef mince' },
+      { qty:'8',   unit:'',     name:'Taco shells' },
+      { qty:'1',   unit:'',     name:'Onion, diced' },
+      { qty:'2',   unit:'cloves', name:'Garlic, minced' },
+      { qty:'1',   unit:'tsp',  name:'Cumin' },
+      { qty:'1',   unit:'tsp',  name:'Smoked paprika' },
+      { qty:'100', unit:'g',    name:'Cheddar, grated' },
+      { qty:'1',   unit:'',     name:'Tomato, diced' },
+      { qty:'4',   unit:'tbsp', name:'Sour cream' },
+    ],
+    method: [
+      'Brown mince in a hot pan over high heat, breaking it up as it cooks.',
+      'Add onion and garlic, reduce heat, cook 3 min. Add cumin and paprika.',
+      'Add a splash of water, season and simmer 5 min until saucy.',
+      'Warm taco shells. Fill with beef, top with cheese, tomato and sour cream.'
+    ]
+  },
+  {
+    id: 5, name: 'Roasted salmon',
+    time: '25 mins', prep: '5 min', cook: '20 min', serves: 2,
+    source: 'Personal',
+    tags: ['fish', 'healthy'],
+    ingredients: [
+      { qty:'2',   unit:'fillets', name:'Salmon fillets' },
+      { qty:'2',   unit:'tbsp',   name:'Olive oil' },
+      { qty:'1',   unit:'',       name:'Lemon, sliced' },
+      { qty:'2',   unit:'cloves', name:'Garlic, minced' },
+      { qty:'1',   unit:'tsp',    name:'Dried thyme or oregano' },
+      { qty:'200', unit:'g',      name:'Cherry tomatoes' },
+    ],
+    method: [
+      'Preheat oven to 200 °C / 180 °C fan. Line a baking tray.',
+      'Place salmon on tray. Drizzle with oil, scatter garlic, herbs and lemon over the top.',
+      'Add cherry tomatoes around the fillets. Season generously with salt and pepper.',
+      'Roast 18–20 min until salmon flakes easily and tomatoes are blistered.'
+    ]
+  }
+];
+
+const DAYS = [
+  { key:'mon', label:'Mon', date:'28 Apr' },
+  { key:'tue', label:'Tue', date:'29 Apr' },
+  { key:'wed', label:'Wed', date:'30 Apr' },
+  { key:'thu', label:'Thu', date:'1 May'  },
+  { key:'fri', label:'Fri', date:'2 May'  },
+  { key:'sat', label:'Sat', date:'3 May'  },
+  { key:'sun', label:'Sun', date:'4 May'  },
+];
+
+const MEAL_TYPES = ['breakfast', 'lunch', 'dinner'];
+const MEAL_ABBR  = { breakfast:'B', lunch:'L', dinner:'D' };
+
+const DEFAULT_PLANNER = {
+  'mon-breakfast': 2,
+  'mon-dinner':    1,
+  'tue-lunch':     3,
+  'tue-dinner':    4,
+  'wed-dinner':    2,
+  'thu-lunch':     4,
+  'fri-dinner':    5,
+  'sun-lunch':     3,
+};
+
+const SHOP_DEFAULT = [
+  // Produce
+  { id:'p1', cat:'produce', catLabel:'🥬 Produce',      name:'Onion',             qty:'2 medium' },
+  { id:'p2', cat:'produce', catLabel:'🥬 Produce',      name:'Garlic',            qty:'7 cloves' },
+  { id:'p3', cat:'produce', catLabel:'🥬 Produce',      name:'Red bell pepper',   qty:'1'        },
+  { id:'p4', cat:'produce', catLabel:'🥬 Produce',      name:'Lemon',             qty:'2'        },
+  { id:'p5', cat:'produce', catLabel:'🥬 Produce',      name:'Fresh ginger',      qty:'1 piece'  },
+  { id:'p6', cat:'produce', catLabel:'🥬 Produce',      name:'Spring onions',     qty:'1 bunch'  },
+  { id:'p7', cat:'produce', catLabel:'🥬 Produce',      name:'Cherry tomatoes',   qty:'200 g'    },
+  { id:'p8', cat:'produce', catLabel:'🥬 Produce',      name:'Parsley',           qty:'1 handful'},
+  // Meat & Fish
+  { id:'m1', cat:'meat',    catLabel:'🥩 Meat & Fish',  name:'Chicken breast',    qty:'500 g'    },
+  { id:'m2', cat:'meat',    catLabel:'🥩 Meat & Fish',  name:'Beef mince',        qty:'400 g'    },
+  { id:'m3', cat:'meat',    catLabel:'🥩 Meat & Fish',  name:'Salmon fillets',    qty:'2 fillets'},
+  // Dairy & Eggs
+  { id:'d1', cat:'dairy',   catLabel:'🧀 Dairy & Eggs', name:'Eggs',              qty:'4'        },
+  { id:'d2', cat:'dairy',   catLabel:'🧀 Dairy & Eggs', name:'Feta cheese',       qty:'50 g'     },
+  { id:'d3', cat:'dairy',   catLabel:'🧀 Dairy & Eggs', name:'Parmesan',          qty:'40 g'     },
+  { id:'d4', cat:'dairy',   catLabel:'🧀 Dairy & Eggs', name:'Butter',            qty:'30 g'     },
+  { id:'d5', cat:'dairy',   catLabel:'🧀 Dairy & Eggs', name:'Cheddar, grated',   qty:'100 g'    },
+  { id:'d6', cat:'dairy',   catLabel:'🧀 Dairy & Eggs', name:'Sour cream',        qty:'4 tbsp'   },
+  // Pantry
+  { id:'q1', cat:'pantry',  catLabel:'🥫 Pantry',       name:'Tinned tomatoes',   qty:'400 g'    },
+  { id:'q2', cat:'pantry',  catLabel:'🥫 Pantry',       name:'Spaghetti',         qty:'400 g'    },
+  { id:'q3', cat:'pantry',  catLabel:'🥫 Pantry',       name:'Taco shells',       qty:'8'        },
+  { id:'q4', cat:'pantry',  catLabel:'🥫 Pantry',       name:'Soy sauce',         qty:'2 tbsp'   },
+  { id:'q5', cat:'pantry',  catLabel:'🥫 Pantry',       name:'Sesame oil',        qty:'1 tbsp'   },
+  { id:'q6', cat:'pantry',  catLabel:'🥫 Pantry',       name:'Olive oil',         qty:'4 tbsp'   },
+];
+
+const ALL_FILTER_TAGS = ['All','breakfast','quick','vegetarian','pasta','meat','fish','chicken','mexican','healthy'];
+
+// ─────────────────────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────────────────────
+
+function loadState() {
+  try {
+    return {
+      planner:  JSON.parse(localStorage.getItem('mp_planner'))  || { ...DEFAULT_PLANNER },
+      checked:  JSON.parse(localStorage.getItem('mp_checked'))  || {},
+      recipes:  JSON.parse(localStorage.getItem('mp_recipes'))  || RECIPES_DEFAULT.map(r => ({...r})),
+      shopItems:JSON.parse(localStorage.getItem('mp_shop'))     || SHOP_DEFAULT.map(i => ({...i})),
+    };
+  } catch(e) {
+    return {
+      planner:  { ...DEFAULT_PLANNER },
+      checked:  {},
+      recipes:  RECIPES_DEFAULT.map(r => ({...r})),
+      shopItems:SHOP_DEFAULT.map(i => ({...i})),
+    };
+  }
+}
+
+const S = loadState();
+
+function persist() {
+  localStorage.setItem('mp_planner',  JSON.stringify(S.planner));
+  localStorage.setItem('mp_checked',  JSON.stringify(S.checked));
+  localStorage.setItem('mp_recipes',  JSON.stringify(S.recipes));
+  localStorage.setItem('mp_shop',     JSON.stringify(S.shopItems));
+}
+
+// ─────────────────────────────────────────────────────────────
+// APP CONTROLLER
+// ─────────────────────────────────────────────────────────────
+
+const APP = (() => {
+
+  // ── State ──────────────────────────────────────
+  let currentTab       = 'planner';
+  let activeFilters    = new Set(['All']);
+  let currentPickerSlot= null;
+  let currentDetailId  = null;
+  let detailFrom       = 'library';   // 'library' | 'planner'
+  let toastTimer       = null;
+
+  // ── Navigation ─────────────────────────────────
+  function switchTab(tab) {
+    ['planner','library','shop'].forEach(t => {
+      document.getElementById('scr-' + t).classList.toggle('active', t === tab);
+      document.getElementById('js-nav-' + t).classList.toggle('active', t === tab);
+      document.getElementById('js-navlbl-' + t).classList.toggle('active', t === tab);
+    });
+    currentTab = tab;
+    if (tab === 'planner') renderPlanner();
+    if (tab === 'library') renderLibrary();
+    if (tab === 'shop')    renderShop();
+  }
+
+  function goToShop() {
+    if (Object.keys(S.planner).length === 0) return;
+    switchTab('shop');
+  }
+
+  // ── Planner ────────────────────────────────────
+  function renderPlanner() {
+    const wrap = document.getElementById('js-planner-days');
+    wrap.innerHTML = '';
+
+    DAYS.forEach(day => {
+      const block = document.createElement('div');
+      block.className = 'day-block';
+      block.innerHTML = `
+        <div class="day-hdr">
+          <div class="day-name">${day.label}</div>
+          <div class="day-date">${day.date}</div>
+        </div>
+        <div class="day-slots">
+          ${MEAL_TYPES.map(mt => {
+            const key = `${day.key}-${mt}`;
+            const rid = S.planner[key];
+            const rec = rid ? S.recipes.find(r => r.id === rid) : null;
+            return `<div class="meal-row">
+              <div class="meal-lbl">${MEAL_ABBR[mt]}</div>
+              ${rec
+                ? `<div class="slot-filled" onclick="APP.openDetail(${rec.id},'planner')">
+                     <div class="slot-thumb"></div>
+                     <div class="slot-name">${rec.name}</div>
+                     <div class="slot-remove" onclick="event.stopPropagation();APP.removeSlot('${key}')">✕</div>
+                   </div>`
+                : `<div class="slot-empty" onclick="APP.openPicker('${key}','${mt}')">+</div>`
+              }
+            </div>`;
+          }).join('')}
+        </div>`;
+      wrap.appendChild(block);
+    });
+
+    // Quick-add row
+    const qa = document.getElementById('js-qa-row');
+    qa.innerHTML = S.recipes.map(r => `
+      <div class="qa-card" onclick="APP.openDetail(${r.id},'planner')">
+        <div class="qa-img-box"></div>
+        <div class="qa-lbl">${r.name}</div>
+      </div>`).join('');
+
+    updateProgress();
+  }
+
+  function updateProgress() {
+    const filled = Object.keys(S.planner).length;
+    const pct = Math.round((filled / 21) * 100);
+    document.getElementById('js-prog-fill').style.width = pct + '%';
+    document.getElementById('js-prog-text').textContent = `${filled} / 21 slots filled`;
+    const btn = document.getElementById('js-gen-btn');
+    btn.classList.toggle('inactive', filled === 0);
+  }
+
+  function removeSlot(key) {
+    delete S.planner[key];
+    persist();
+    renderPlanner();
+  }
+
+  // ── Recipe Picker (bottom sheet) ───────────────
+  function openPicker(slotKey, mealType) {
+    currentPickerSlot = slotKey;
+    document.getElementById('js-picker-title').textContent =
+      `Add ${mealType.charAt(0).toUpperCase() + mealType.slice(1)}`;
+
+    document.getElementById('js-picker-list').innerHTML =
+      S.recipes.map(r => `
+        <div class="picker-item" onclick="APP.pickRecipe(${r.id})">
+          <div class="picker-thumb"></div>
+          <div class="picker-info">
+            <div class="picker-name">${r.name}</div>
+            <div class="picker-meta">${r.time} · Serves ${r.serves}</div>
+          </div>
+          <div class="picker-chevron">›</div>
+        </div>`).join('');
+
+    document.getElementById('js-picker-overlay').classList.add('open');
+  }
+
+  function closePicker() {
+    document.getElementById('js-picker-overlay').classList.remove('open');
+    currentPickerSlot = null;
+  }
+
+  function handlePickerBg(e) {
+    if (e.target === document.getElementById('js-picker-overlay')) closePicker();
+  }
+
+  function pickRecipe(recipeId) {
+    if (!currentPickerSlot) return;
+    S.planner[currentPickerSlot] = recipeId;
+    persist();
+    closePicker();
+    renderPlanner();
+  }
+
+  // ── Recipe Detail (full sheet) ─────────────────
+  function openDetail(recipeId, from) {
+    const r = S.recipes.find(x => x.id === recipeId);
+    if (!r) return;
+    currentDetailId = recipeId;
+    detailFrom = from || 'library';
+
+    document.getElementById('js-detail-body').innerHTML = `
+      <div class="detail-title">${r.name}</div>
+      <div class="detail-source">${r.source ? '↗ ' + r.source : ''}</div>
+      <div class="meta-row">
+        <div class="meta-cell"><div class="meta-lbl">Serves</div><div class="meta-val">${r.serves}</div></div>
+        <div class="meta-cell"><div class="meta-lbl">Prep</div><div class="meta-val">${r.prep}</div></div>
+        <div class="meta-cell"><div class="meta-lbl">Cook</div><div class="meta-val">${r.cook}</div></div>
+        <div class="meta-cell"><div class="meta-lbl">Total</div><div class="meta-val">${r.time}</div></div>
+      </div>
+      <div class="detail-tags">${r.tags.map(t => `<div class="tag-pill">${t}</div>`).join('')}</div>
+      <hr class="divider">
+      <div class="section-title">Ingredients</div>
+      ${r.ingredients.map(i => `
+        <div class="ing-list-item">
+          <div class="ing-amt">${[i.qty, i.unit].filter(Boolean).join(' ')}</div>
+          <div>${i.name}</div>
+        </div>`).join('')}
+      <hr class="divider">
+      <div class="section-title">Method</div>
+      ${r.method.map((s, i) => `
+        <div class="method-step">
+          <div class="step-num">${i+1}</div>
+          <div>${s}</div>
+        </div>`).join('')}
+      <div style="height:8px"></div>`;
+
+    // Scroll detail back to top
+    document.querySelector('#js-detail-sheet .detail-scroll').scrollTop = 0;
+    document.getElementById('js-detail-sheet').classList.add('open');
+  }
+
+  function closeDetail() {
+    document.getElementById('js-detail-sheet').classList.remove('open');
+    currentDetailId = null;
+  }
+
+  // ── Slot Picker (modal, opened from detail) ────
+  function openSlotPicker() {
+    if (!currentDetailId) return;
+    const r = S.recipes.find(x => x.id === currentDetailId);
+    document.getElementById('js-slot-recipe-name').textContent = '"' + r.name + '"';
+
+    document.getElementById('js-slot-options').innerHTML = DAYS.map(day => `
+      <div class="slot-day-group">
+        <div class="slot-day-label">${day.label} ${day.date}</div>
+        ${MEAL_TYPES.map(mt => {
+          const key  = `${day.key}-${mt}`;
+          const rid  = S.planner[key];
+          const occupied = rid ? S.recipes.find(x => x.id === rid) : null;
+          return `<div class="slot-option ${occupied ? 'taken' : ''}"
+                       ${occupied ? '' : `onclick="APP.assignSlot('${key}')"`}>
+            <span>${mt.charAt(0).toUpperCase() + mt.slice(1)}</span>
+            ${occupied
+              ? `<span class="slot-taken-name">${occupied.name}</span>`
+              : `<span class="slot-chevron">›</span>`}
+          </div>`;
+        }).join('')}
+      </div>`).join('');
+
+    document.getElementById('js-slot-overlay').classList.add('open');
+  }
+
+  function closeSlotPicker() {
+    document.getElementById('js-slot-overlay').classList.remove('open');
+  }
+
+  function handleSlotBg(e) {
+    if (e.target === document.getElementById('js-slot-overlay')) closeSlotPicker();
+  }
+
+  function assignSlot(key) {
+    if (!currentDetailId) return;
+    S.planner[key] = currentDetailId;
+    persist();
+    closeSlotPicker();
+    closeDetail();
+    renderPlanner();
+    const [dayKey, mt] = key.split('-');
+    const dayObj = DAYS.find(d => d.key === dayKey);
+    showToast(`Added to ${dayObj ? dayObj.label : dayKey} ${mt}`);
+  }
+
+  // ── Library ────────────────────────────────────
+  function renderLibrary() {
+    // Filter chips
+    document.getElementById('js-filter-row').innerHTML = ALL_FILTER_TAGS.map(tag => `
+      <div class="filter-chip ${activeFilters.has(tag) ? 'active' : ''}"
+           onclick="APP.toggleFilter('${tag}')">
+        ${tag.charAt(0).toUpperCase() + tag.slice(1)}
+      </div>`).join('');
+
+    // Recipe grid
+    let list = S.recipes;
+    if (!activeFilters.has('All')) {
+      list = S.recipes.filter(r => r.tags.some(t => activeFilters.has(t)));
+    }
+
+    document.getElementById('js-recipe-grid').innerHTML = list.map(r => `
+      <div class="recipe-card" onclick="APP.openDetail(${r.id},'library')">
+        <div class="rc-img img-rect"></div>
+        <div class="rc-body">
+          <div class="rc-title">${r.name}</div>
+          <div class="rc-meta">${r.time} · Serves ${r.serves}</div>
+          <div class="rc-tags">${r.tags.map(t => `<div class="rc-tag">${t}</div>`).join('')}</div>
+        </div>
+      </div>`).join('');
+  }
+
+  function toggleFilter(tag) {
+    if (tag === 'All') {
+      activeFilters = new Set(['All']);
+    } else {
+      activeFilters.delete('All');
+      activeFilters.has(tag) ? activeFilters.delete(tag) : activeFilters.add(tag);
+      if (activeFilters.size === 0) activeFilters.add('All');
+    }
+    renderLibrary();
+  }
+
+  // ── Add Recipe sheet ───────────────────────────
+  function openAddSheet() {
+    // Reset form
+    ['f-title','f-source','f-prep','f-cook','f-tags','f-method'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+    const sv = document.getElementById('f-serves');
+    if (sv) sv.value = '';
+
+    const list = document.getElementById('js-ing-list');
+    list.innerHTML = '';
+    addIngRow('2','tbsp','Olive oil');
+    addIngRow('1','','Onion, sliced');
+    addIngRow('','','');
+
+    setCapMode('manual');
+    document.getElementById('js-add-sheet').classList.add('open');
+  }
+
+  function closeAddSheet() {
+    document.getElementById('js-add-sheet').classList.remove('open');
+  }
+
+  function setCapMode(mode) {
+    document.querySelectorAll('.cap-tab').forEach(t =>
+      t.classList.toggle('active', t.dataset.mode === mode));
+    document.querySelectorAll('.cap-content').forEach(c =>
+      c.classList.toggle('active', c.id === 'cap-' + mode));
+    // Reset add sheet scroll to top when switching modes
+    const ms = document.querySelector('#cap-manual .form-scroll');
+    if (ms) ms.scrollTop = 0;
+  }
+
+  function addIngRow(qty='', unit='', name='') {
+    const row = document.createElement('div');
+    row.className = 'ing-row';
+    row.innerHTML = `
+      <input class="ing-qty" type="text" value="${qty}" placeholder="Qty">
+      <input class="ing-unit" type="text" value="${unit}" placeholder="Unit">
+      <input class="ing-name" type="text" value="${name}" placeholder="Ingredient">
+      <div class="ing-del" onclick="this.parentElement.remove()">−</div>`;
+    document.getElementById('js-ing-list').appendChild(row);
+  }
+
+  function saveRecipe() {
+    const title = (document.getElementById('f-title').value || '').trim();
+    if (!title) { showToast('Please enter a recipe title'); return; }
+
+    const ings = [];
+    document.querySelectorAll('#js-ing-list .ing-row').forEach(row => {
+      const [qty, unit, name] = [...row.querySelectorAll('input')].map(i => i.value.trim());
+      if (name) ings.push({ qty, unit, name });
+    });
+
+    const tags = (document.getElementById('f-tags').value || '')
+      .split(',').map(t => t.trim()).filter(Boolean);
+
+    const method = (document.getElementById('f-method').value || '')
+      .split('\n').map(l => l.trim()).filter(Boolean);
+
+    const newRec = {
+      id:     Date.now(),
+      name:   title,
+      source: (document.getElementById('f-source').value || '').trim(),
+      serves: parseInt(document.getElementById('f-serves').value) || 2,
+      prep:   (document.getElementById('f-prep').value || '—').trim(),
+      cook:   (document.getElementById('f-cook').value || '—').trim(),
+      time:   (document.getElementById('f-cook').value || '—').trim(),
+      tags:   tags.length ? tags : ['other'],
+      ingredients: ings,
+      method,
+    };
+
+    S.recipes.push(newRec);
+    persist();
+    closeAddSheet();
+    renderLibrary();
+    showToast(`"${title}" saved to library`);
+  }
+
+  function stubImport() {
+    showToast('URL import is a stub — use Manual entry');
+  }
+
+  // ── Shopping List ──────────────────────────────
+  function renderShop() {
+    const items    = S.shopItems;
+    const checked  = S.checked;
+    const total    = items.length;
+    const doneCount = Object.values(checked).filter(Boolean).length;
+    const filledMeals = Object.keys(S.planner).length;
+
+    // progress
+    const pct = total ? Math.round((doneCount / total) * 100) : 0;
+    document.getElementById('js-sp-fill').style.width = pct + '%';
+    document.getElementById('js-sp-label').textContent = `${doneCount} / ${total} checked`;
+    document.getElementById('js-shop-sub').textContent =
+      `Week of 28 Apr – 4 May · ${filledMeals} meal${filledMeals !== 1 ? 's' : ''} planned`;
+
+    // group unchecked by category; collect done items
+    const catMap   = {};
+    const doneItems = [];
+
+    items.forEach(item => {
+      if (checked[item.id]) {
+        doneItems.push(item);
+      } else {
+        if (!catMap[item.cat]) catMap[item.cat] = { label: item.catLabel, items: [] };
+        catMap[item.cat].items.push(item);
+      }
+    });
+
+    let html = '';
+    Object.values(catMap).forEach(cat => {
+      if (!cat.items.length) return;
+      html += `<div class="list-cat">
+        <div class="list-cat-hdr">${cat.label}</div>
+        ${cat.items.map(item => itemHTML(item, false)).join('')}
+      </div>`;
+    });
+
+    if (doneItems.length) {
+      html += `<div class="done-section-hdr">Done (${doneItems.length})</div>`;
+      html += doneItems.map(item => itemHTML(item, true)).join('');
+    }
+
+    document.getElementById('js-shop-list').innerHTML = html;
+  }
+
+  function itemHTML(item, done) {
+    return `<div class="list-item ${done ? 'is-done' : ''}" id="item-${item.id}">
+      <div class="checkbox ${done ? 'checked' : ''}" onclick="APP.toggleItem('${item.id}')">
+        ${done ? '✓' : ''}
+      </div>
+      <div class="item-name ${done ? 'done' : ''}">${item.name}</div>
+      <div class="item-qty ${done ? 'done' : ''}">${item.qty}</div>
+    </div>`;
+  }
+
+  function toggleItem(itemId) {
+    S.checked[itemId] = !S.checked[itemId];
+    persist();
+    // Short pause so checkbox animation is visible before list reorders
+    setTimeout(() => renderShop(), 280);
+  }
+
+  function addManualItem() {
+    const id   = 'manual-' + Date.now();
+    const item = { id, cat:'other', catLabel:'📝 Other', name:'', qty:'' };
+    S.shopItems.unshift(item);
+    persist();
+
+    const list = document.getElementById('js-shop-list');
+    const row  = document.createElement('div');
+    row.className = 'list-item';
+    row.id = 'item-' + id;
+    row.innerHTML = `
+      <div class="checkbox" onclick="APP.toggleItem('${id}')"></div>
+      <input class="manual-input item-name" type="text" placeholder="Item name…"
+             onblur="APP.commitManual('${id}', this.value)"
+             onkeydown="if(event.key==='Enter')this.blur()">
+      <div class="item-qty"></div>`;
+    list.insertBefore(row, list.firstChild);
+    row.querySelector('input').focus();
+  }
+
+  function commitManual(id, value) {
+    const item = S.shopItems.find(i => i.id === id);
+    if (item) { item.name = value.trim() || 'Item'; persist(); }
+    renderShop();
+  }
+
+  function shareList() {
+    const unchecked = S.shopItems.filter(i => !S.checked[i.id]);
+    const catMap = {};
+    unchecked.forEach(i => {
+      if (!catMap[i.cat]) catMap[i.cat] = { label: i.catLabel, items: [] };
+      catMap[i.cat].items.push(i);
+    });
+    let text = 'Shopping list — week of 28 Apr\n\n';
+    Object.values(catMap).forEach(c => {
+      if (!c.items.length) return;
+      text += c.label + '\n';
+      c.items.forEach(i => { text += `[ ] ${i.name}  ${i.qty}\n`; });
+      text += '\n';
+    });
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text)
+        .then(() => showToast('List copied to clipboard'))
+        .catch(() => showToast('Copy not available in this browser'));
+    } else {
+      showToast('Copied to clipboard');
+    }
+  }
+
+  // ── Toast ──────────────────────────────────────
+  function showToast(msg) {
+    const el = document.getElementById('js-toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 2400);
+  }
+
+  // ── Public API ─────────────────────────────────
+  return {
+    switchTab, goToShop,
+    renderPlanner, removeSlot,
+    openPicker, closePicker, handlePickerBg, pickRecipe,
+    openDetail, closeDetail,
+    openSlotPicker, closeSlotPicker, handleSlotBg, assignSlot,
+    renderLibrary, toggleFilter,
+    openAddSheet, closeAddSheet, setCapMode, addIngRow, saveRecipe, stubImport,
+    renderShop, toggleItem, addManualItem, commitManual, shareList,
+    showToast,
+  };
+
+})();
+
+// ─────────────────────────────────────────────────────────────
+// CLOCK
+// ─────────────────────────────────────────────────────────────
+function tickClock() {
+  const now = new Date();
+  document.getElementById('js-clock').textContent =
+    now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0');
+}
+tickClock();
+setInterval(tickClock, 15000);
+
+// ─────────────────────────────────────────────────────────────
+// BOOT
+// ─────────────────────────────────────────────────────────────
+APP.renderPlanner();
+APP.renderLibrary();
+APP.renderShop();
+</script>
+</body>
+</html>

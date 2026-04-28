@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meal Planner — Lo-Fi Wireframes v0.1</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif;
+  background: #f0efed;
+  color: #1a1a1a;
+  -webkit-font-smoothing: antialiased;
+}
+
+.page {
+  padding: 40px 32px 80px;
+  max-width: 2200px;
+  margin: 0 auto;
+}
+
+.doc-header {
+  margin-bottom: 40px;
+  padding-bottom: 24px;
+  border-bottom: 2px solid #1a1a1a;
+}
+
+.doc-header h1 {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin-bottom: 6px;
+}
+
+.doc-meta {
+  display: flex;
+  gap: 24px;
+  font-size: 12px;
+  color: #666;
+}
+
+.screens-row {
+  display: flex;
+  gap: 48px;
+  align-items: flex-start;
+  overflow-x: auto;
+  padding-bottom: 20px;
+}
+
+.screen-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  flex-shrink: 0;
+}
+
+.screen-label {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #444;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.screen-number {
+  width: 22px; height: 22px;
+  background: #1a1a1a; color: #fff;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700;
+}
+
+.phone {
+  width: 390px; height: 844px;
+  border: 3px solid #1a1a1a;
+  border-radius: 44px;
+  overflow: hidden;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+}
+
+.phone::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 120px; height: 30px;
+  background: #1a1a1a;
+  border-radius: 0 0 18px 18px;
+  z-index: 20;
+}
+
+.status-bar {
+  height: 48px;
+  background: #fff;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 0 28px 6px;
+  flex-shrink: 0;
+  border-bottom: 1px solid #ebebeb;
+  position: relative; z-index: 10;
+}
+.status-time { font-size: 13px; font-weight: 700; }
+.status-icons { display: flex; gap: 5px; align-items: center; }
+.s-icon { width: 14px; height: 10px; border: 1.5px solid #1a1a1a; border-radius: 2px; }
+
+.screen-content { flex: 1; overflow-y: auto; overflow-x: hidden; position: relative; }
+.screen-content::-webkit-scrollbar { display: none; }
+
+.bottom-nav {
+  height: 82px; background: #fff;
+  border-top: 1.5px solid #e0e0e0;
+  display: flex; align-items: flex-start;
+  padding-top: 10px; flex-shrink: 0;
+}
+.nav-tab { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.nav-icon-box { width: 26px; height: 22px; border: 2px solid #bbb; border-radius: 5px; display: flex; align-items: center; justify-content: center; }
+.nav-icon-box.active { border-color: #1a1a1a; background: #1a1a1a; }
+.nav-dot { width: 4px; height: 4px; background: #bbb; border-radius: 50%; }
+.nav-icon-box.active .nav-dot { background: #fff; }
+.nav-label { font-size: 10px; color: #aaa; font-weight: 500; }
+.nav-label.active { color: #1a1a1a; font-weight: 700; }
+
+.img-rect { background: #d8d8d8; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #aaa; font-style: italic; }
+.tag-pill { padding: 3px 8px; border: 1.5px solid #d0d0d0; border-radius: 20px; font-size: 10px; color: #666; white-space: nowrap; }
+.tag-pill.active { border-color: #1a1a1a; background: #1a1a1a; color: #fff; }
+
+/* Annotations */
+.annotations { width: 390px; display: flex; flex-direction: column; gap: 0; }
+.ann-item { display: flex; gap: 10px; padding: 8px 0; border-bottom: 1px solid #e0dedd; font-size: 11.5px; color: #333; line-height: 1.5; }
+.ann-num { width: 18px; height: 18px; background: #1a1a1a; color: #fff; border-radius: 50%; font-size: 9px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.ann-text { flex: 1; }
+.ann-text strong { font-weight: 700; }
+
+/* ── PLANNER ── */
+.planner-top { padding: 14px 16px 12px; border-bottom: 1.5px solid #ebebeb; }
+.prog-bar-wrap { margin-bottom: 10px; }
+.prog-label-row { display: flex; justify-content: space-between; font-size: 11px; color: #aaa; margin-bottom: 5px; }
+.prog-track { height: 3px; background: #eee; border-radius: 2px; }
+.prog-fill { height: 100%; background: #1a1a1a; border-radius: 2px; }
+.week-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.week-range { font-size: 16px; font-weight: 800; letter-spacing: -0.02em; }
+.week-arrows { display: flex; gap: 6px; }
+.week-arrow { width: 28px; height: 28px; border: 1.5px solid #d0d0d0; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #555; }
+.gen-btn { width: 100%; padding: 11px; border-radius: 10px; font-size: 13px; font-weight: 700; text-align: center; background: #1a1a1a; color: #fff; border: 2px solid #1a1a1a; }
+.gen-btn.inactive { background: #fff; color: #ccc; border-color: #e0e0e0; }
+
+.day-block { border-bottom: 1px solid #ebebeb; padding: 10px 16px; }
+.day-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 7px; }
+.day-name { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #666; }
+.day-date { font-size: 10px; color: #aaa; }
+.day-slots { display: flex; flex-direction: column; gap: 5px; }
+.meal-row { display: flex; align-items: center; gap: 7px; }
+.meal-type { font-size: 8.5px; text-transform: uppercase; letter-spacing: 0.06em; color: #bbb; width: 16px; flex-shrink: 0; }
+.slot-filled { flex: 1; height: 38px; border: 1.5px solid #d0d0d0; border-radius: 8px; background: #fafafa; display: flex; align-items: center; gap: 8px; padding: 0 7px; }
+.slot-thumb { width: 28px; height: 28px; background: #d0d0d0; border-radius: 5px; flex-shrink: 0; }
+.slot-name { font-size: 12px; font-weight: 500; }
+.slot-more { color: #ccc; font-size: 14px; }
+.slot-empty { flex: 1; height: 34px; border: 1.5px dashed #d4d4d4; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #d0d0d0; font-size: 18px; font-weight: 300; }
+
+.qa-strip { border-top: 1.5px solid #e0e0e0; background: #f7f7f7; }
+.qa-handle { width: 36px; height: 4px; background: #d0d0d0; border-radius: 2px; margin: 8px auto 0; }
+.qa-header { display: flex; align-items: center; justify-content: space-between; padding: 6px 16px 8px; }
+.qa-title { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #888; }
+.qa-see-all { font-size: 11px; color: #555; font-weight: 600; }
+.qa-scroll { display: flex; gap: 10px; overflow-x: auto; padding: 0 16px 14px; }
+.qa-scroll::-webkit-scrollbar { display: none; }
+.qa-card { flex-shrink: 0; width: 76px; }
+.qa-img { width: 76px; height: 58px; background: #d0d0d0; border-radius: 7px; margin-bottom: 4px; }
+.qa-label { font-size: 10px; font-weight: 500; text-align: center; line-height: 1.3; color: #333; }
+
+/* ── LIBRARY ── */
+.lib-top { padding: 14px 16px 10px; border-bottom: 1.5px solid #ebebeb; }
+.lib-header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.lib-title { font-size: 18px; font-weight: 800; letter-spacing: -0.02em; }
+.sort-btn { padding: 6px 12px; border: 1.5px solid #d0d0d0; border-radius: 7px; font-size: 11px; color: #555; }
+.search-bar { height: 40px; border: 1.5px solid #d0d0d0; border-radius: 10px; background: #f5f5f5; display: flex; align-items: center; gap: 9px; padding: 0 12px; margin-bottom: 11px; }
+.search-icon { width: 15px; height: 15px; border: 2px solid #aaa; border-radius: 50%; flex-shrink: 0; }
+.search-placeholder { font-size: 13px; color: #bbb; }
+.filter-row { display: flex; gap: 7px; overflow-x: auto; }
+.filter-row::-webkit-scrollbar { display: none; }
+.filter-chip { padding: 6px 12px; border: 1.5px solid #d0d0d0; border-radius: 20px; font-size: 12px; white-space: nowrap; color: #555; }
+.filter-chip.active { border-color: #1a1a1a; background: #1a1a1a; color: #fff; }
+.recipe-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 14px 16px 80px; }
+.recipe-card { border: 1.5px solid #e0e0e0; border-radius: 10px; overflow: hidden; background: #fff; }
+.rc-img { width: 100%; height: 96px; background: #d4d4d4; }
+.rc-body { padding: 8px 9px 9px; }
+.rc-title { font-size: 12px; font-weight: 700; margin-bottom: 3px; line-height: 1.3; }
+.rc-meta { font-size: 10.5px; color: #999; margin-bottom: 7px; }
+.rc-tags { display: flex; gap: 4px; flex-wrap: wrap; }
+.rc-tag { padding: 2px 6px; border: 1px solid #d8d8d8; border-radius: 10px; font-size: 9.5px; color: #777; }
+.fab { position: absolute; bottom: 90px; right: 18px; width: 52px; height: 52px; background: #1a1a1a; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 26px; font-weight: 200; box-shadow: 0 4px 16px rgba(0,0,0,0.28); z-index: 15; line-height: 1; }
+
+/* ── ADD RECIPE ── */
+.sheet-top { padding: 14px 16px 12px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1.5px solid #ebebeb; }
+.sheet-title { font-size: 17px; font-weight: 800; letter-spacing: -0.02em; }
+.close-btn { width: 28px; height: 28px; border: 1.5px solid #ccc; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #888; }
+.capture-row { display: flex; gap: 8px; padding: 14px 16px; border-bottom: 1.5px solid #ebebeb; }
+.capture-btn { flex: 1; padding: 10px 4px 9px; border: 1.5px solid #d8d8d8; border-radius: 9px; text-align: center; background: #fff; }
+.capture-btn.selected { border-color: #1a1a1a; background: #1a1a1a; color: #fff; }
+.cap-icon { font-size: 18px; margin-bottom: 4px; display: block; }
+.cap-label { font-size: 10.5px; font-weight: 600; }
+.form-group { padding: 12px 16px 8px; border-bottom: 1px solid #f2f2f2; }
+.form-section-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #999; margin-bottom: 10px; }
+.field { margin-bottom: 10px; }
+.field-label { font-size: 10.5px; font-weight: 700; color: #666; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.06em; }
+.field-input { width: 100%; height: 40px; border: 1.5px solid #d8d8d8; border-radius: 8px; background: #fafafa; display: flex; align-items: center; padding: 0 11px; font-size: 13px; color: #333; }
+.field-input.placeholder-text { color: #bbb; }
+.two-col { display: flex; gap: 10px; }
+.two-col .field { flex: 1; }
+.field-row-with-img { display: flex; gap: 12px; align-items: flex-start; }
+.field-grow { flex: 1; }
+.img-upload { width: 80px; height: 80px; border: 2px dashed #ccc; border-radius: 9px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #ccc; font-size: 22px; }
+.img-upload span { font-size: 9px; color: #bbb; font-weight: 600; text-transform: uppercase; }
+.ing-col-headers { display: flex; gap: 6px; margin-bottom: 5px; padding-right: 28px; }
+.ing-col-h { font-size: 9px; text-transform: uppercase; letter-spacing: 0.06em; color: #bbb; font-weight: 700; }
+.ing-row { display: flex; gap: 6px; align-items: center; margin-bottom: 7px; }
+.ing-qty { width: 48px; height: 36px; border: 1.5px solid #d8d8d8; border-radius: 7px; background: #fafafa; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #444; flex-shrink: 0; }
+.ing-unit { width: 52px; height: 36px; border: 1.5px solid #d8d8d8; border-radius: 7px; background: #fafafa; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #999; flex-shrink: 0; }
+.ing-name { flex: 1; height: 36px; border: 1.5px solid #d8d8d8; border-radius: 7px; background: #fafafa; display: flex; align-items: center; padding: 0 9px; font-size: 12px; color: #333; }
+.ing-del { width: 22px; height: 22px; border: 1.5px solid #e0e0e0; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #ccc; font-size: 14px; flex-shrink: 0; }
+.add-ing { font-size: 12px; font-weight: 700; color: #444; display: flex; align-items: center; gap: 5px; padding: 4px 0; }
+.add-ing-circle { width: 20px; height: 20px; border: 1.5px solid #999; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #666; flex-shrink: 0; }
+.save-btn-bar { padding: 12px 16px 20px; }
+.save-btn { width: 100%; padding: 14px; background: #1a1a1a; color: #fff; border-radius: 11px; font-size: 15px; font-weight: 700; text-align: center; }
+
+/* ── RECIPE DETAIL ── */
+.hero { width: 100%; height: 210px; background: #c8c8c8; position: relative; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #aaa; font-style: italic; flex-shrink: 0; }
+.hero-btn { position: absolute; top: 10px; width: 32px; height: 32px; background: rgba(255,255,255,0.88); border-radius: 50%; border: 1px solid rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: center; font-size: 14px; color: #333; }
+.detail-body { padding: 16px 16px 0; }
+.detail-title { font-size: 22px; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 3px; }
+.detail-source { font-size: 12px; color: #999; margin-bottom: 14px; }
+.detail-meta-row { display: flex; margin-bottom: 14px; border: 1.5px solid #e8e8e8; border-radius: 10px; overflow: hidden; }
+.meta-cell { flex: 1; padding: 9px 10px; border-right: 1.5px solid #e8e8e8; display: flex; flex-direction: column; gap: 2px; }
+.meta-cell:last-child { border-right: none; }
+.meta-cell-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.07em; color: #aaa; font-weight: 700; }
+.meta-cell-val { font-size: 14px; font-weight: 700; }
+.detail-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 18px; }
+.divider { border: none; border-top: 1px solid #ebebeb; margin: 14px 0; }
+.section-title { font-size: 14px; font-weight: 800; margin-bottom: 10px; }
+.ing-list-item { display: flex; gap: 10px; padding: 7px 0; border-bottom: 1px solid #f2f2f2; font-size: 13px; }
+.ing-amount { color: #999; min-width: 80px; font-size: 12px; }
+.method-step { display: flex; gap: 10px; margin-bottom: 12px; line-height: 1.55; font-size: 13px; }
+.step-n { width: 22px; height: 22px; border: 2px solid #1a1a1a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; flex-shrink: 0; margin-top: 2px; }
+.add-plan-bar { background: #fff; border-top: 1px solid #e8e8e8; padding: 10px 16px 12px; flex-shrink: 0; }
+.add-plan-btn { width: 100%; padding: 14px; background: #1a1a1a; color: #fff; border-radius: 11px; font-size: 15px; font-weight: 700; text-align: center; }
+
+/* ── SHOPPING LIST ── */
+.list-header { padding: 14px 16px 12px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1.5px solid #ebebeb; }
+.list-title { font-size: 18px; font-weight: 800; letter-spacing: -0.02em; }
+.share-btn { width: 34px; height: 34px; border: 1.5px solid #d0d0d0; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #555; }
+.list-subtitle { padding: 8px 16px 10px; font-size: 12px; color: #999; border-bottom: 1px solid #f0f0f0; }
+.list-progress { display: flex; align-items: center; gap: 8px; padding: 7px 16px; background: #fafafa; border-bottom: 1px solid #ebebeb; }
+.lp-bar { flex: 1; height: 4px; background: #e8e8e8; border-radius: 2px; }
+.lp-fill { height: 100%; background: #1a1a1a; border-radius: 2px; }
+.lp-label { font-size: 11px; color: #999; white-space: nowrap; }
+.list-section { border-bottom: 1px solid #ebebeb; }
+.list-section-hdr { padding: 7px 16px 5px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #888; background: #f7f7f7; }
+.list-item { display: flex; align-items: center; gap: 12px; padding: 11px 16px; border-bottom: 1px solid #f5f5f5; }
+.list-item.checked-item { opacity: 0.45; }
+.checkbox { width: 22px; height: 22px; border: 2px solid #c8c8c8; border-radius: 6px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+.checkbox.checked { background: #1a1a1a; border-color: #1a1a1a; color: #fff; font-size: 11px; }
+.item-name { flex: 1; font-size: 13.5px; }
+.item-name.done { text-decoration: line-through; color: #bbb; }
+.item-qty { font-size: 12px; color: #aaa; }
+.done-section-hdr { padding: 7px 16px 5px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #bbb; background: #fafafa; border-top: 1px solid #ebebeb; }
+.add-manual { display: flex; align-items: center; gap: 9px; padding: 13px 16px; font-size: 13px; color: #555; font-weight: 600; border-top: 1px solid #ebebeb; }
+.add-manual-icon { width: 26px; height: 26px; border: 1.5px dashed #aaa; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #aaa; font-size: 16px; }
+
+/* ── UX QUESTIONS ── */
+.ux-section { margin-top: 56px; border-top: 2px solid #1a1a1a; padding-top: 28px; }
+.ux-section-title { font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 20px; }
+.ux-questions { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 12px; }
+.ux-q { background: #fffbf0; border: 1.5px solid #e8c84a; border-radius: 8px; padding: 12px 14px; }
+.ux-q-num { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #b08800; margin-bottom: 5px; }
+.ux-q-title { font-size: 13px; font-weight: 700; margin-bottom: 5px; }
+.ux-q-body { font-size: 12px; color: #5a4a00; line-height: 1.55; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="doc-header">
+    <h1>Meal Planner App — Lo-Fi Wireframes</h1>
+    <div class="doc-meta"><span>v0.1</span><span>·</span><span>5 screens</span><span>·</span><span>Mobile-first · 390 × 844</span><span>·</span><span>28 Apr 2026</span></div>
+  </div>
+
+  <div class="screens-row">
+
+    <!-- ── SCREEN 1: PLANNER ── -->
+    <div class="screen-wrap">
+      <div class="screen-label"><div class="screen-number">1</div>Planner · Home</div>
+      <div class="phone">
+        <div class="status-bar"><span class="status-time">9:41</span><div class="status-icons"><div class="s-icon"></div><div class="s-icon"></div><div class="s-icon"></div></div></div>
+        <div class="screen-content">
+          <div class="planner-top">
+            <div class="prog-bar-wrap">
+              <div class="prog-label-row"><span>Weekly progress</span><span>8 / 21 slots filled</span></div>
+              <div class="prog-track"><div class="prog-fill" style="width:38%"></div></div>
+            </div>
+            <div class="week-nav">
+              <div class="week-range">28 Apr – 4 May</div>
+              <div class="week-arrows"><div class="week-arrow">‹</div><div class="week-arrow">›</div></div>
+            </div>
+            <div class="gen-btn">Generate shopping list</div>
+          </div>
+          <!-- Mon -->
+          <div class="day-block">
+            <div class="day-header"><div class="day-name">Mon</div><div class="day-date">28 Apr</div></div>
+            <div class="day-slots">
+              <div class="meal-row"><div class="meal-type">B</div><div class="slot-filled"><div class="slot-thumb"></div><div class="slot-name">Shakshuka</div><div class="slot-more">···</div></div></div>
+              <div class="meal-row"><div class="meal-type">L</div><div class="slot-empty">+</div></div>
+              <div class="meal-row"><div class="meal-type">D</div><div class="slot-filled"><div class="slot-thumb"></div><div class="slot-name">Chicken stir fry</div><div class="slot-more">···</div></div></div>
+            </div>
+          </div>
+          <!-- Tue -->
+          <div class="day-block">
+            <div class="day-header"><div class="day-name">Tue</div><div class="day-date">29 Apr</div></div>
+            <div class="day-slots">
+              <div class="meal-row"><div class="meal-type">B</div><div class="slot-empty">+</div></div>
+              <div class="meal-row"><div class="meal-type">L</div><div class="slot-filled"><div class="slot-thumb"></div><div class="slot-name">Lemon pasta</div><div class="slot-more">···</div></div></div>
+              <div class="meal-row"><div class="meal-type">D</div><div class="slot-filled"><div class="slot-thumb"></div><div class="slot-name">Beef tacos</div><div class="slot-more">···</div></div></div>
+            </div>
+          </div>
+          <!-- Wed -->
+          <div class="day-block">
+            <div class="day-header"><div class="day-name">Wed</div><div class="day-date">30 Apr</div></div>
+            <div class="day-slots">
+              <div class="meal-row"><div class="meal-type">B</div><div class="slot-empty">+</div></div>
+              <div class="meal-row"><div class="meal-type">L</div><div class="slot-empty">+</div></div>
+              <div class="meal-row"><div class="meal-type">D</div><div class="slot-filled"><div class="slot-thumb"></div><div class="slot-name">Shakshuka</div><div class="slot-more">···</div></div></div>
+            </div>
+          </div>
+          <!-- Thu -->
+          <div class="day-block">
+            <div class="day-header"><div class="day-name">Thu</div><div class="day-date">1 May</div></div>
+            <div class="day-slots">
+              <div class="meal-row"><div class="meal-type">B</div><div class="slot-empty">+</div></div>
+              <div class="meal-row"><div class="meal-type">L</div><div class="slot-filled"><div class="slot-thumb"></div><div class="slot-name">Beef tacos</div><div class="slot-more">···</div></div></div>
+              <div class="meal-row"><div class="meal-type">D</div><div class="slot-empty">+</div></div>
+            </div>
+          </div>
+          <!-- Fri -->
+          <div class="day-block">
+            <div class="day-header"><div class="day-name">Fri</div><div class="day-date">2 May</div></div>
+            <div class="day-slots">
+              <div class="meal-row"><div class="meal-type">B</div><div class="slot-empty">+</div></div>
+              <div class="meal-row"><div class="meal-type">L</div><div class="slot-empty">+</div></div>
+              <div class="meal-row"><div class="meal-type">D</div><div class="slot-filled"><div class="slot-thumb"></div><div class="slot-name">Roasted salmon</div><div class="slot-more">···</div></div></div>
+            </div>
+          </div>
+          <!-- Sat -->
+          <div class="day-block">
+            <div class="day-header"><div class="day-name">Sat</div><div class="day-date">3 May</div></div>
+            <div class="day-slots">
+              <div class="meal-row"><div class="meal-type">B</div><div class="slot-empty">+</div></div>
+              <div class="meal-row"><div class="meal-type">L</div><div class="slot-empty">+</div></div>
+              <div class="meal-row"><div class="meal-type">D</div><div class="slot-empty">+</div></div>
+            </div>
+          </div>
+          <!-- Sun -->
+          <div class="day-block">
+            <div class="day-header"><div class="day-name">Sun</div><div class="day-date">4 May</div></div>
+            <div class="day-slots">
+              <div class="meal-row"><div class="meal-type">B</div><div class="slot-empty">+</div></div>
+              <div class="meal-row"><div class="meal-type">L</div><div class="slot-filled"><div class="slot-thumb"></div><div class="slot-name">Lemon pasta</div><div class="slot-more">···</div></div></div>
+              <div class="meal-row"><div class="meal-type">D</div><div class="slot-empty">+</div></div>
+            </div>
+          </div>
+          <div class="qa-strip">
+            <div class="qa-handle"></div>
+            <div class="qa-header"><div class="qa-title">Recent recipes</div><div class="qa-see-all">See all →</div></div>
+            <div class="qa-scroll">
+              <div class="qa-card"><div class="qa-img"></div><div class="qa-label">Shakshuka</div></div>
+              <div class="qa-card"><div class="qa-img"></div><div class="qa-label">Chicken stir fry</div></div>
+              <div class="qa-card"><div class="qa-img"></div><div class="qa-label">Lemon pasta</div></div>
+              <div class="qa-card"><div class="qa-img"></div><div class="qa-label">Beef tacos</div></div>
+              <div class="qa-card"><div class="qa-img"></div><div class="qa-label">Roasted salmon</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="bottom-nav">
+          <div class="nav-tab"><div class="nav-icon-box active"><div class="nav-dot"></div></div><div class="nav-label active">Planner</div></div>
+          <div class="nav-tab"><div class="nav-icon-box"><div class="nav-dot"></div></div><div class="nav-label">Library</div></div>
+          <div class="nav-tab"><div class="nav-icon-box"><div class="nav-dot"></div></div><div class="nav-label">Shop</div></div>
+        </div>
+      </div>
+      <div class="annotations">
+        <div class="ann-item"><div class="ann-num">1</div><div class="ann-text"><strong>Empty slot ( + )</strong> — tap opens recipe picker sheet filtered by meal type. Tap-hold on a filled slot to drag-reorder.</div></div>
+        <div class="ann-item"><div class="ann-num">2</div><div class="ann-text"><strong>Generate shopping list</strong> — active once ≥1 meal is planned. Navigates to Shop tab and regenerates list.</div></div>
+        <div class="ann-item"><div class="ann-num">3</div><div class="ann-text"><strong>Filled slot (···)</strong> — overflow: View recipe, Remove, Swap. Tapping card body opens Recipe Detail.</div></div>
+        <div class="ann-item"><div class="ann-num">4</div><div class="ann-text"><strong>Quick-add strip</strong> — collapsed with drag handle. Swipe up to expand. Cards are draggable onto day slots.</div></div>
+        <div class="ann-item"><div class="ann-num">5</div><div class="ann-text"><strong>Progress bar</strong> — thin indicator showing slots filled / 21 total. Updates live.</div></div>
+      </div>
+    </div>
+
+    <!-- ── SCREEN 2: LIBRARY ── -->
+    <div class="screen-wrap">
+      <div class="screen-label"><div class="screen-number">2</div>Recipe Library</div>
+      <div class="phone">
+        <div class="status-bar"><span class="status-time">9:41</span><div class="status-icons"><div class="s-icon"></div><div class="s-icon"></div><div class="s-icon"></div></div></div>
+        <div class="screen-content">
+          <div class="lib-top">
+            <div class="lib-header-row"><div class="lib-title">Recipes</div><div class="sort-btn">Sort ↕</div></div>
+            <div class="search-bar"><div class="search-icon"></div><div class="search-placeholder">Search recipes…</div></div>
+            <div class="filter-row">
+              <div class="filter-chip active">All</div>
+              <div class="filter-chip">Breakfast</div>
+              <div class="filter-chip">Quick &lt;30m</div>
+              <div class="filter-chip">Vegetarian</div>
+              <div class="filter-chip">Asian</div>
+              <div class="filter-chip">Pasta</div>
+            </div>
+          </div>
+          <div class="recipe-grid">
+            <div class="recipe-card"><div class="rc-img"></div><div class="rc-body"><div class="rc-title">Shakshuka</div><div class="rc-meta">25 min · Serves 4</div><div class="rc-tags"><div class="rc-tag">Vegetarian</div><div class="rc-tag">Breakfast</div></div></div></div>
+            <div class="recipe-card"><div class="rc-img"></div><div class="rc-body"><div class="rc-title">Chicken stir fry</div><div class="rc-meta">30 min · Serves 2</div><div class="rc-tags"><div class="rc-tag">Quick</div><div class="rc-tag">Chicken</div></div></div></div>
+            <div class="recipe-card"><div class="rc-img"></div><div class="rc-body"><div class="rc-title">Lemon pasta</div><div class="rc-meta">20 min · Serves 2</div><div class="rc-tags"><div class="rc-tag">Quick</div><div class="rc-tag">Pasta</div></div></div></div>
+            <div class="recipe-card"><div class="rc-img"></div><div class="rc-body"><div class="rc-title">Beef tacos</div><div class="rc-meta">40 min · Serves 4</div><div class="rc-tags"><div class="rc-tag">Meat</div><div class="rc-tag">Mexican</div></div></div></div>
+            <div class="recipe-card"><div class="rc-img"></div><div class="rc-body"><div class="rc-title">Roasted salmon</div><div class="rc-meta">25 min · Serves 2</div><div class="rc-tags"><div class="rc-tag">Fish</div><div class="rc-tag">Healthy</div></div></div></div>
+            <div class="recipe-card"><div class="rc-img"></div><div class="rc-body"><div class="rc-title">Greek salad</div><div class="rc-meta">10 min · Serves 2</div><div class="rc-tags"><div class="rc-tag">Vegetarian</div><div class="rc-tag">Quick</div></div></div></div>
+          </div>
+        </div>
+        <div class="fab" style="position:absolute;bottom:90px;right:18px">+</div>
+        <div class="bottom-nav">
+          <div class="nav-tab"><div class="nav-icon-box"><div class="nav-dot"></div></div><div class="nav-label">Planner</div></div>
+          <div class="nav-tab"><div class="nav-icon-box active"><div class="nav-dot"></div></div><div class="nav-label active">Library</div></div>
+          <div class="nav-tab"><div class="nav-icon-box"><div class="nav-dot"></div></div><div class="nav-label">Shop</div></div>
+        </div>
+      </div>
+      <div class="annotations">
+        <div class="ann-item"><div class="ann-num">1</div><div class="ann-text"><strong>Filter chips</strong> — horizontal scroll, single-select. "All" resets. Active chip shown filled.</div></div>
+        <div class="ann-item"><div class="ann-num">2</div><div class="ann-text"><strong>Recipe card</strong> — tap opens Recipe Detail. Long-press: contextual menu (Add to plan, Edit, Delete).</div></div>
+        <div class="ann-item"><div class="ann-num">3</div><div class="ann-text"><strong>Swipe card left</strong> — reveals delete. Swipe right — quick-add to plan.</div></div>
+        <div class="ann-item"><div class="ann-num">4</div><div class="ann-text"><strong>FAB ( + )</strong> — opens Add Recipe sheet. Hides on scroll down, reappears on scroll up.</div></div>
+      </div>
+    </div>
+
+    <!-- ── SCREEN 3: ADD RECIPE ── -->
+    <div class="screen-wrap">
+      <div class="screen-label"><div class="screen-number">3</div>Add Recipe</div>
+      <div class="phone">
+        <div class="status-bar"><span class="status-time">9:41</span><div class="status-icons"><div class="s-icon"></div><div class="s-icon"></div><div class="s-icon"></div></div></div>
+        <div class="screen-content">
+          <div class="sheet-top"><div class="sheet-title">Add Recipe</div><div class="close-btn">✕</div></div>
+          <div class="capture-row">
+            <div class="capture-btn"><span class="cap-icon">🔗</span><div class="cap-label">Paste URL</div></div>
+            <div class="capture-btn selected"><span class="cap-icon" style="filter:invert(1)">✏️</span><div class="cap-label">Manual</div></div>
+            <div class="capture-btn"><span class="cap-icon">📷</span><div class="cap-label">From photo</div></div>
+          </div>
+          <div class="form-group">
+            <div class="form-section-label">Basic info</div>
+            <div class="field-row-with-img">
+              <div class="field-grow">
+                <div class="field"><div class="field-label">Title</div><div class="field-input">Shakshuka</div></div>
+                <div class="field"><div class="field-label">Source</div><div class="field-input placeholder-text">e.g. Ottolenghi Simple p.48</div></div>
+              </div>
+              <div><div class="field-label">Photo</div><div class="img-upload">+<span>Add</span></div></div>
+            </div>
+            <div class="two-col">
+              <div class="field"><div class="field-label">Serves</div><div class="field-input">2</div></div>
+              <div class="field"><div class="field-label">Prep time</div><div class="field-input">10 min</div></div>
+            </div>
+            <div class="two-col">
+              <div class="field"><div class="field-label">Cook time</div><div class="field-input">30 min</div></div>
+              <div class="field"><div class="field-label">Tags</div><div class="field-input placeholder-text">e.g. Breakfast</div></div>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="form-section-label">Ingredients</div>
+            <div class="ing-col-headers"><div class="ing-col-h" style="width:48px">Qty</div><div class="ing-col-h" style="width:52px">Unit</div><div class="ing-col-h" style="flex:1;padding-left:6px">Ingredient</div></div>
+            <div class="ing-row"><div class="ing-qty">2</div><div class="ing-unit">tbsp</div><div class="ing-name">Olive oil</div><div class="ing-del">−</div></div>
+            <div class="ing-row"><div class="ing-qty">1</div><div class="ing-unit">medium</div><div class="ing-name">Onion, sliced</div><div class="ing-del">−</div></div>
+            <div class="ing-row"><div class="ing-qty">400</div><div class="ing-unit">g</div><div class="ing-name">Tinned tomatoes</div><div class="ing-del">−</div></div>
+            <div class="ing-row"><div class="ing-qty">4</div><div class="ing-unit"></div><div class="ing-name">Eggs</div><div class="ing-del">−</div></div>
+            <div class="add-ing"><div class="add-ing-circle">+</div>Add ingredient</div>
+          </div>
+          <div class="form-group">
+            <div class="form-section-label">Method</div>
+            <div class="field-input placeholder-text" style="height:70px;align-items:flex-start;padding-top:10px">Write or paste method steps…</div>
+          </div>
+          <div class="save-btn-bar"><div class="save-btn">Save recipe</div></div>
+        </div>
+      </div>
+      <div class="annotations">
+        <div class="ann-item"><div class="ann-num">1</div><div class="ann-text"><strong>Capture toggle</strong> — Paste URL scrapes title/image/ingredients. From photo uses OCR. Manual (shown) reveals full form.</div></div>
+        <div class="ann-item"><div class="ann-num">2</div><div class="ann-text"><strong>Ingredient rows</strong> — structured Qty / Unit / Name. Unit could be a picker (g, kg, tbsp…) or free text.</div></div>
+        <div class="ann-item"><div class="ann-num">3</div><div class="ann-text"><strong>Method field</strong> — free-text for MVP. Could auto-split into numbered steps on save (detect line breaks).</div></div>
+        <div class="ann-item"><div class="ann-num">4</div><div class="ann-text"><strong>Tags field</strong> — comma-separated free text, or chip-selector. Consistent taxonomy matters for library filtering.</div></div>
+      </div>
+    </div>
+
+    <!-- ── SCREEN 4: RECIPE DETAIL ── -->
+    <div class="screen-wrap">
+      <div class="screen-label"><div class="screen-number">4</div>Recipe Detail</div>
+      <div class="phone">
+        <div class="status-bar"><span class="status-time">9:41</span><div class="status-icons"><div class="s-icon"></div><div class="s-icon"></div><div class="s-icon"></div></div></div>
+        <div class="screen-content">
+          <div class="hero">
+            <div class="hero-btn" style="left:12px">‹</div>
+            <div class="hero-btn" style="right:12px">···</div>
+            recipe photo
+          </div>
+          <div class="detail-body">
+            <div class="detail-title">Shakshuka</div>
+            <div class="detail-source">↗ Ottolenghi Simple, p.48</div>
+            <div class="detail-meta-row">
+              <div class="meta-cell"><div class="meta-cell-label">Serves</div><div class="meta-cell-val">4</div></div>
+              <div class="meta-cell"><div class="meta-cell-label">Prep</div><div class="meta-cell-val">5m</div></div>
+              <div class="meta-cell"><div class="meta-cell-label">Cook</div><div class="meta-cell-val">25m</div></div>
+              <div class="meta-cell"><div class="meta-cell-label">Total</div><div class="meta-cell-val">30m</div></div>
+            </div>
+            <div class="detail-tags"><div class="tag-pill">Vegetarian</div><div class="tag-pill">Breakfast</div><div class="tag-pill">Middle Eastern</div></div>
+            <hr class="divider">
+            <div class="section-title">Ingredients</div>
+            <div class="ing-list-item"><div class="ing-amount">2 tbsp</div><div>Olive oil</div></div>
+            <div class="ing-list-item"><div class="ing-amount">1 medium</div><div>Onion, thinly sliced</div></div>
+            <div class="ing-list-item"><div class="ing-amount">1</div><div>Red bell pepper, sliced</div></div>
+            <div class="ing-list-item"><div class="ing-amount">3 cloves</div><div>Garlic, minced</div></div>
+            <div class="ing-list-item"><div class="ing-amount">1 tsp each</div><div>Cumin, paprika</div></div>
+            <div class="ing-list-item"><div class="ing-amount">400 g</div><div>Tinned tomatoes</div></div>
+            <div class="ing-list-item"><div class="ing-amount">4</div><div>Eggs</div></div>
+            <div class="ing-list-item"><div class="ing-amount">50 g</div><div>Feta cheese</div></div>
+            <hr class="divider">
+            <div class="section-title">Method</div>
+            <div class="method-step"><div class="step-n">1</div><div>Heat oil in a large frying pan. Add onion and pepper, cook for 8 min until softened.</div></div>
+            <div class="method-step"><div class="step-n">2</div><div>Add garlic, cumin and paprika. Cook 1 min until fragrant.</div></div>
+            <div class="method-step"><div class="step-n">3</div><div>Pour in tomatoes, season well. Simmer 10 min until thickened. Make 4 wells, crack in eggs.</div></div>
+            <div class="method-step"><div class="step-n">4</div><div>Cover and cook 5–7 min until whites are set. Crumble over feta and serve with bread.</div></div>
+          </div>
+          <div class="add-plan-bar"><div class="add-plan-btn">Add to plan</div></div>
+        </div>
+        <div class="bottom-nav">
+          <div class="nav-tab"><div class="nav-icon-box"><div class="nav-dot"></div></div><div class="nav-label">Planner</div></div>
+          <div class="nav-tab"><div class="nav-icon-box active"><div class="nav-dot"></div></div><div class="nav-label active">Library</div></div>
+          <div class="nav-tab"><div class="nav-icon-box"><div class="nav-dot"></div></div><div class="nav-label">Shop</div></div>
+        </div>
+      </div>
+      <div class="annotations">
+        <div class="ann-item"><div class="ann-num">1</div><div class="ann-text"><strong>Hero image</strong> — full-bleed. Back ( ‹ ) returns to library. Overflow ( ··· ): Edit, Duplicate, Delete, Share.</div></div>
+        <div class="ann-item"><div class="ann-num">2</div><div class="ann-text"><strong>Source attribution</strong> — tappable if a URL. Opens browser. Plain text if manually entered.</div></div>
+        <div class="ann-item"><div class="ann-num">3</div><div class="ann-text"><strong>Serves counter</strong> — consider interactive stepper (− 2 +) that scales ingredient quantities proportionally.</div></div>
+        <div class="ann-item"><div class="ann-num">4</div><div class="ann-text"><strong>"Add to plan" CTA</strong> — sticky. Tap opens a day/slot picker sheet (which day? which meal?). Confirm adds recipe.</div></div>
+      </div>
+    </div>
+
+    <!-- ── SCREEN 5: SHOPPING LIST ── -->
+    <div class="screen-wrap">
+      <div class="screen-label"><div class="screen-number">5</div>Shopping List</div>
+      <div class="phone">
+        <div class="status-bar"><span class="status-time">9:41</span><div class="status-icons"><div class="s-icon"></div><div class="s-icon"></div><div class="s-icon"></div></div></div>
+        <div class="screen-content">
+          <div class="list-header"><div class="list-title">Shopping list</div><div class="share-btn">↑</div></div>
+          <div class="list-subtitle">Week of 28 Apr – 4 May · 8 meals planned</div>
+          <div class="list-progress"><div class="lp-bar"><div class="lp-fill" style="width:28%"></div></div><div class="lp-label">4 / 21 checked</div></div>
+          <div class="list-section">
+            <div class="list-section-hdr">🥬 Produce</div>
+            <div class="list-item checked-item"><div class="checkbox checked">✓</div><div class="item-name done">Onion</div><div class="item-qty done" style="text-decoration:line-through;color:#ccc">2 medium</div></div>
+            <div class="list-item checked-item"><div class="checkbox checked">✓</div><div class="item-name done">Garlic</div><div class="item-qty done" style="text-decoration:line-through;color:#ccc">6 cloves</div></div>
+            <div class="list-item"><div class="checkbox"></div><div class="item-name">Red bell pepper</div><div class="item-qty">2</div></div>
+            <div class="list-item"><div class="checkbox"></div><div class="item-name">Lemon</div><div class="item-qty">3</div></div>
+            <div class="list-item"><div class="checkbox"></div><div class="item-name">Fresh ginger</div><div class="item-qty">1 piece</div></div>
+            <div class="list-item"><div class="checkbox"></div><div class="item-name">Spring onions</div><div class="item-qty">1 bunch</div></div>
+          </div>
+          <div class="list-section">
+            <div class="list-section-hdr">🥩 Meat & Fish</div>
+            <div class="list-item checked-item"><div class="checkbox checked">✓</div><div class="item-name done">Chicken breast</div><div class="item-qty done" style="text-decoration:line-through;color:#ccc">500 g</div></div>
+            <div class="list-item"><div class="checkbox"></div><div class="item-name">Beef mince</div><div class="item-qty">400 g</div></div>
+            <div class="list-item"><div class="checkbox"></div><div class="item-name">Salmon fillets</div><div class="item-qty">2 fillets</div></div>
+          </div>
+          <div class="list-section">
+            <div class="list-section-hdr">🧀 Dairy & Eggs</div>
+            <div class="list-item checked-item"><div class="checkbox checked">✓</div><div class="item-name done">Eggs</div><div class="item-qty done" style="text-decoration:line-through;color:#ccc">8</div></div>
+            <div class="list-item"><div class="checkbox"></div><div class="item-name">Feta cheese</div><div class="item-qty">50 g</div></div>
+            <div class="list-item"><div class="checkbox"></div><div class="item-name">Parmesan</div><div class="item-qty">40 g</div></div>
+          </div>
+          <div class="list-section">
+            <div class="list-section-hdr">🥫 Pantry</div>
+            <div class="list-item"><div class="checkbox"></div><div class="item-name">Tinned tomatoes</div><div class="item-qty">400 g</div></div>
+            <div class="list-item"><div class="checkbox"></div><div class="item-name">Spaghetti</div><div class="item-qty">400 g</div></div>
+            <div class="list-item"><div class="checkbox"></div><div class="item-name">Taco shells</div><div class="item-qty">8</div></div>
+            <div class="list-item"><div class="checkbox"></div><div class="item-name">Soy sauce</div><div class="item-qty">2 tbsp</div></div>
+          </div>
+          <div class="add-manual"><div class="add-manual-icon">+</div>Add item manually</div>
+        </div>
+        <div class="bottom-nav">
+          <div class="nav-tab"><div class="nav-icon-box"><div class="nav-dot"></div></div><div class="nav-label">Planner</div></div>
+          <div class="nav-tab"><div class="nav-icon-box"><div class="nav-dot"></div></div><div class="nav-label">Library</div></div>
+          <div class="nav-tab"><div class="nav-icon-box active"><div class="nav-dot"></div></div><div class="nav-label active">Shop</div></div>
+        </div>
+      </div>
+      <div class="annotations">
+        <div class="ann-item"><div class="ann-num">1</div><div class="ann-text"><strong>Checked items</strong> — struck-through in-place to preserve aisle context. Move to "Done" section after a delay.</div></div>
+        <div class="ann-item"><div class="ann-num">2</div><div class="ann-text"><strong>Aisle grouping</strong> — auto-assigned by ingredient lookup. Section headers use emoji for quick scanability.</div></div>
+        <div class="ann-item"><div class="ann-num">3</div><div class="ann-text"><strong>Swipe to delete</strong> — removes manually added items. Auto-generated items can be hidden but reappear on regenerate.</div></div>
+        <div class="ann-item"><div class="ann-num">4</div><div class="ann-text"><strong>Share ( ↑ )</strong> — iOS share sheet: copy as plain text grouped by aisle, with [ ] checkbox notation.</div></div>
+      </div>
+    </div>
+
+  </div><!-- /screens-row -->
+
+  <!-- UX QUESTIONS -->
+  <div class="ux-section">
+    <div class="ux-section-title">⚑ UX Questions &amp; Open Decisions</div>
+    <div class="ux-questions">
+      <div class="ux-q"><div class="ux-q-num">Q1 · Planner</div><div class="ux-q-title">How does the recipe picker work when tapping an empty slot?</div><div class="ux-q-body">Option A: Full-screen library search sheet, filtered by meal type. Option B: Expands quick-add strip inline with search. Option A is more powerful but more friction. Option B is faster for the 80% case of choosing a recent recipe.</div></div>
+      <div class="ux-q"><div class="ux-q-num">Q2 · Planner</div><div class="ux-q-title">What does "Add to plan" do when tapped from Recipe Detail?</div><div class="ux-q-body">Does it open a day/slot picker, or add to the next empty slot automatically? The picker is explicit but adds taps. Auto-add is faster but may surprise the user. Given this is personal/single-user, a lightweight bottom sheet slot picker feels right.</div></div>
+      <div class="ux-q"><div class="ux-q-num">Q3 · Planner</div><div class="ux-q-title">Week start day: Monday or Sunday?</div><div class="ux-q-body">Should respect device locale, but worth asking. Also: should the planner always open on the current week, or remember the last-viewed week?</div></div>
+      <div class="ux-q"><div class="ux-q-num">Q4 · Shopping list</div><div class="ux-q-title">How are ingredients assigned to aisles?</div><div class="ux-q-body">Options: (A) Hardcoded lookup table, (B) User assigns category when adding ingredient, (C) AI inference at save time. Option A covers 90% of cases cheaply. Consider letting users reorder or rename sections for their specific supermarket.</div></div>
+      <div class="ux-q"><div class="ux-q-num">Q5 · Shopping list</div><div class="ux-q-title">What happens when you edit the plan after generating the list?</div><div class="ux-q-body">Recommend: show a "Plan has changed — refresh list?" banner rather than auto-refreshing, to avoid disrupting an in-progress shop where items have already been checked off.</div></div>
+      <div class="ux-q"><div class="ux-q-num">Q6 · Add Recipe</div><div class="ux-q-title">URL import: what happens when scraping fails?</div><div class="ux-q-body">Many recipe sites block scrapers. Options: use a recipe API (Spoonacular, Edamam), or integrate with the iOS Share Sheet so users can share from Safari to the app natively — most seamless for mobile but requires an App Extension.</div></div>
+      <div class="ux-q"><div class="ux-q-num">Q7 · Recipe Detail</div><div class="ux-q-title">Should serves be interactive (scale ingredients)?</div><div class="ux-q-body">A serves stepper (− 2 +) that proportionally scales quantities would be genuinely useful, especially for the shopping list. Straightforward for structured ingredient data; harder for free-text quantities ("a handful"). Worth building from the start.</div></div>
+      <div class="ux-q"><div class="ux-q-num">Q8 · Navigation</div><div class="ux-q-title">Should Recipe Detail be a modal or a push view?</div><div class="ux-q-body">Reachable from both Library (push view) and Planner (feels more like a modal). Consider presenting as a modal sheet from Planner, push view from Library — same content, two presentation styles.</div></div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
