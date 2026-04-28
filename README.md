@@ -119,3 +119,4 @@ Meal Planner/
 ├── wireframes.html  ← original static lo-fi wireframes
 └── README.md        ← this file
 ```
+# Meal-Planner
