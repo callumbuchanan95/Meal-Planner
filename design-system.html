@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meal Planner — Design System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+/* ══════════════════════════════════════════════════════════════
+   DESIGN TOKENS
+   ─────────────────────────────────────────────────────────────
+   Edit values here. Every swatch, bar, and component on this
+   page reads from these variables — change one value and it
+   propagates everywhere automatically.
+══════════════════════════════════════════════════════════════ */
+:root {
+
+  /* ── Font ─────────────────────────────────────────────────── */
+  --font-family: 'Work Sans', -apple-system, 'Helvetica Neue', sans-serif;
+  --font-mono:   'SFMono-Regular', 'Consolas', 'Liberation Mono', monospace;
+
+  /* ── Brand colour scale (primary: #1D9E75) ────────────────── */
+  --brand-100: #D1F0E5;   /* lightest tint   */
+  --brand-300: #7DCDB2;   /* light           */
+  --brand-500: #1D9E75;   /* primary ★       */
+  --brand-700: #147352;   /* dark            */
+  --brand-900: #0B4733;   /* darkest shade   */
+
+  /* ── Neutral scale ────────────────────────────────────────── */
+  --neutral-50:  #FAFAFA;
+  --neutral-100: #F5F5F5;
+  --neutral-200: #EBEBEB;
+  --neutral-300: #D4D4D4;
+  --neutral-400: #B0B0B0;
+  --neutral-500: #888888;
+  --neutral-600: #666666;
+  --neutral-700: #444444;
+  --neutral-800: #2A2A2A;
+  --neutral-900: #1A1A1A;
+
+  /* ── Semantic colours ─────────────────────────────────────── */
+  --color-success: #1D9E75;
+  --color-warning: #E09515;
+  --color-danger:  #E03232;
+  --color-info:    #2D7DD2;
+
+  /* ── Surface colours ──────────────────────────────────────── */
+  --surface-primary:   #FFFFFF;
+  --surface-secondary: #F5F5F5;
+  --surface-tertiary:  #EBEBEB;
+
+  /* ── Type scale ───────────────────────────────────────────── */
+  --text-display: 28px;
+  --text-h1:      22px;
+  --text-h2:      18px;
+  --text-h3:      16px;
+  --text-body:    15px;
+  --text-small:   13px;
+  --text-micro:   11px;
+
+  /* ── Spacing scale ────────────────────────────────────────── */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* ── Border radius ────────────────────────────────────────── */
+  --radius-sm:   5px;
+  --radius-md:   10px;
+  --radius-lg:   20px;
+  --radius-full: 9999px;
+
+  /* ── Shadows ──────────────────────────────────────────────── */
+  --shadow-none:     none;
+  --shadow-subtle:   0 1px 4px rgba(0,0,0,0.07), 0 0 1px rgba(0,0,0,0.04);
+  --shadow-elevated: 0 4px 20px rgba(0,0,0,0.12), 0 1px 6px rgba(0,0,0,0.06);
+}
+
+
+
+
+/* ══════════════════════════════════════════════════════════════
+   PAGE CHROME
+══════════════════════════════════════════════════════════════ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-family);
+  font-size: var(--text-body);
+  line-height: 1.5;
+  color: var(--neutral-900);
+  background: var(--surface-secondary);
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; text-decoration: none; }
+
+code, .mono {
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+/* ── Layout ───────────────────────────────────────────────── */
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ── Sidebar ──────────────────────────────────────────────── */
+.sidebar {
+  width: 216px;
+  flex-shrink: 0;
+  background: var(--surface-primary);
+  border-right: 1.5px solid var(--neutral-200);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+.sidebar::-webkit-scrollbar { display: none; }
+
+.sidebar-brand {
+  padding: 24px 20px 18px;
+  border-bottom: 1.5px solid var(--neutral-200);
+}
+.sidebar-app {
+  font-size: var(--text-h3);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: var(--neutral-900);
+  margin-bottom: 3px;
+}
+.sidebar-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--text-micro);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--brand-600, #147352);
+}
+.sidebar-badge::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background: var(--brand-500);
+  border-radius: var(--radius-full);
+}
+
+.sidebar-nav {
+  padding: 16px 12px;
+  flex: 1;
+}
+
+.nav-group {
+  margin-bottom: 24px;
+}
+.nav-group-label {
+  font-size: var(--text-micro);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--neutral-400);
+  padding: 0 8px;
+  margin-bottom: 4px;
+}
+.nav-link {
+  display: block;
+  padding: 7px 8px;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-small);
+  font-weight: 500;
+  color: var(--neutral-600);
+  transition: background 0.12s, color 0.12s;
+}
+.nav-link:hover {
+  background: var(--neutral-100);
+  color: var(--neutral-900);
+}
+
+.sidebar-footer {
+  padding: 14px 20px;
+  border-top: 1.5px solid var(--neutral-200);
+  font-size: var(--text-micro);
+  color: var(--neutral-400);
+  line-height: 1.6;
+}
+
+/* ── Main content area ────────────────────────────────────── */
+.main {
+  flex: 1;
+  min-width: 0;
+  padding: 52px 60px 100px;
+}
+
+/* ── Page header ──────────────────────────────────────────── */
+.page-header {
+  margin-bottom: 60px;
+  padding-bottom: 40px;
+  border-bottom: 1.5px solid var(--neutral-200);
+  max-width: 640px;
+}
+.page-eyebrow {
+  font-size: var(--text-micro);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--brand-500);
+  margin-bottom: 10px;
+}
+.page-title {
+  font-size: 40px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+  color: var(--neutral-900);
+  margin-bottom: 12px;
+}
+.page-desc {
+  font-size: var(--text-body);
+  color: var(--neutral-500);
+  line-height: 1.65;
+}
+.page-desc code {
+  font-size: 12px;
+  background: var(--neutral-100);
+  color: var(--neutral-700);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+/* ── Section structure ────────────────────────────────────── */
+.section {
+  margin-bottom: 80px;
+}
+.section-eyebrow {
+  font-size: var(--text-micro);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--brand-500);
+  margin-bottom: 6px;
+}
+.section-title {
+  font-size: var(--text-display);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  color: var(--neutral-900);
+  margin-bottom: 8px;
+}
+.section-desc {
+  font-size: var(--text-body);
+  color: var(--neutral-500);
+  line-height: 1.6;
+  margin-bottom: 40px;
+  max-width: 560px;
+}
+
+.subsection {
+  margin-bottom: 52px;
+}
+.subsection-title {
+  font-size: var(--text-h2);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--neutral-800);
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1.5px solid var(--neutral-200);
+}
+
+/* ── Colour swatches ──────────────────────────────────────── */
+.swatch-group {
+  margin-bottom: 32px;
+}
+.swatch-group-label {
+  font-size: var(--text-micro);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--neutral-500);
+  margin-bottom: 14px;
+}
+.swatch-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.swatch {
+  width: 116px;
+  flex-shrink: 0;
+}
+.swatch-tile {
+  width: 116px;
+  height: 68px;
+  border-radius: var(--radius-md);
+  margin-bottom: 9px;
+  border: 1px solid rgba(0,0,0,0.06);
+}
+.swatch-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--neutral-800);
+  margin-bottom: 2px;
+  line-height: 1.3;
+}
+.swatch-var {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--neutral-500);
+  margin-bottom: 1px;
+  display: block;
+}
+.swatch-hex {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--neutral-400);
+}
+
+/* ── Type scale ───────────────────────────────────────────── */
+.type-scale {
+  background: var(--surface-primary);
+  border: 1.5px solid var(--neutral-200);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.type-row {
+  display: grid;
+  grid-template-columns: 1fr 180px;
+  align-items: center;
+  gap: 24px;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--neutral-100);
+  transition: background 0.1s;
+}
+.type-row:last-child { border-bottom: none; }
+.type-row:hover { background: var(--neutral-50); }
+.type-sample {
+  color: var(--neutral-900);
+}
+.type-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+.type-var {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--brand-700);
+  background: var(--brand-100);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+}
+.type-detail {
+  font-size: 11px;
+  color: var(--neutral-400);
+}
+
+/* ── Spacing bars ─────────────────────────────────────────── */
+.spacing-table {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.spacing-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  min-height: 28px;
+}
+.spacing-label {
+  width: 136px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.spacing-var {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--brand-700);
+}
+.spacing-val {
+  font-size: 11px;
+  color: var(--neutral-400);
+}
+.spacing-bar {
+  height: 9px;
+  background: var(--brand-500);
+  border-radius: var(--radius-sm);
+  opacity: 0.85;
+  flex-shrink: 0;
+}
+
+/* ── Radius tiles ─────────────────────────────────────────── */
+.radius-row {
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+.radius-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.radius-tile {
+  background: var(--brand-100);
+  border: 2px solid var(--brand-300);
+}
+.radius-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.radius-var {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--brand-700);
+  display: block;
+}
+.radius-val {
+  font-size: 11px;
+  color: var(--neutral-500);
+}
+
+/* ── Shadow cards ─────────────────────────────────────────── */
+.shadow-row {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.shadow-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+.shadow-card {
+  width: 156px;
+  height: 96px;
+  background: var(--surface-primary);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-small);
+  font-weight: 600;
+  color: var(--neutral-400);
+}
+.shadow-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.shadow-var {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--brand-700);
+  display: block;
+}
+.shadow-name {
+  font-size: 11px;
+  color: var(--neutral-500);
+}
+
+/* ── Icon grid ────────────────────────────────────────────── */
+.icon-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 10px;
+}
+.icon-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  padding: 20px 8px 14px;
+  background: var(--surface-primary);
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--neutral-200);
+  transition: border-color 0.14s, background 0.14s;
+  cursor: default;
+}
+.icon-item:hover {
+  border-color: var(--brand-300);
+  background: var(--brand-100);
+}
+.icon-item:hover svg {
+  color: var(--brand-700);
+}
+.icon-item svg {
+  color: var(--neutral-700);
+  transition: color 0.14s;
+}
+.icon-name {
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--neutral-500);
+  text-align: center;
+  line-height: 1.3;
+}
+
+/* ── Footer ───────────────────────────────────────────────── */
+.page-footer {
+  margin-top: 80px;
+  padding-top: 24px;
+  border-top: 1.5px solid var(--neutral-200);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: var(--text-small);
+  color: var(--neutral-400);
+}
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- ══ SIDEBAR ══ -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-app">Meal Planner</div>
+      <div class="sidebar-badge">Design System</div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-group">
+        <div class="nav-group-label">Tokens</div>
+        <a class="nav-link" href="#colours">Colour</a>
+        <a class="nav-link" href="#typography">Typography</a>
+        <a class="nav-link" href="#spacing">Spacing</a>
+        <a class="nav-link" href="#radius">Border Radius</a>
+        <a class="nav-link" href="#shadows">Shadows</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-label">Reference</div>
+        <a class="nav-link" href="#icons">Icons</a>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      Meal Planner<br>Design System v0.1
+    </div>
+  </aside>
+
+  <!-- ══ MAIN ══ -->
+  <main class="main">
+
+    <!-- Page header -->
+    <div class="page-header">
+      <div class="page-eyebrow">Meal Planner App</div>
+      <div class="page-title">Design System</div>
+      <div class="page-desc">Single source of truth for colour, typography, spacing, and component patterns. Edit the CSS variables in the <code>:root</code> block at the top of the <code>&lt;style&gt;</code> tag — every token on this page updates automatically.</div>
+    </div>
+
+
+    <!-- ════════════════════════════════════════
+         SECTION 1: TOKENS
+    ════════════════════════════════════════ -->
+    <section class="section">
+      <div class="section-eyebrow">01 — Tokens</div>
+      <div class="section-title">Design Tokens</div>
+      <div class="section-desc">Primitive values that drive every visual decision in the app. One change here propagates to every component that references the variable.</div>
+
+
+      <!-- ── COLOUR ── -->
+      <div id="colours" class="subsection">
+        <div class="subsection-title">Colour</div>
+
+        <!-- Brand -->
+        <div class="swatch-group">
+          <div class="swatch-group-label">Brand</div>
+          <div class="swatch-row">
+            <div class="swatch">
+              <div class="swatch-tile" style="background:var(--brand-100)"></div>
+              <div class="swatch-name">Brand 100</div>
+              <span class="swatch-var">--brand-100</span>
+              <div class="swatch-hex">#D1F0E5</div>
+            </div>
+            <div class="swatch">
+              <div class="swatch-tile" style="background:var(--brand-300)"></div>
+              <div class="swatch-name">Brand 300</div>
+              <span class="swatch-var">--brand-300</span>
+              <div class="swatch-hex">#7DCDB2</div>
+            </div>
+            <div class="swatch">
+              <div class="swatch-tile" style="background:var(--brand-500)"></div>
+              <div class="swatch-name">Brand 500 ★</div>
+              <span class="swatch-var">--brand-500</span>
+              <div class="swatch-hex">#1D9E75</div>
+            </div>
+            <div class="swatch">
+              <div class="swatch-tile" style="background:var(--brand-700)"></div>
+              <div class="swatch-name">Brand 700</div>
+              <span class="swatch-var">--brand-700</span>
+              <div class="swatch-hex">#147352</div>
+            </div>
+            <div class="swatch">
+              <div class="swatch-tile" style="background:var(--brand-900)"></div>
+              <div class="swatch-name">Brand 900</div>
+              <span class="swatch-var">--brand-900</span>
+              <div class="swatch-hex">#0B4733</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Neutrals -->
+        <div class="swatch-group">
+          <div class="swatch-group-label">Neutrals</div>
+          <div class="swatch-row">
+            <div class="swatch">
+              <div class="swatch-tile" style="background:var(--neutral-50);border:1.5px solid var(--neutral-200)!important"></div>
+              <div class="swatch-name">Neutral 50</div>
+              <span class="swatch-var">--neutral-50</span>
+              <div class="swatch-hex">#FAFAFA</div>
+            </div>
+            <div class="swatch">
+              <div class="swatch-tile" style="background:var(--neutral-100)"></div>
+              <div class="swatch-name">Neutral 100</div>
+              <span class="swatch-var">--neutral-100</span>
+              <div class="swatch-hex">#F5F5F5</div>
+            </div>
+            <div class="swatch">
+              <div class="swatch-tile" style="background:var(--neutral-200)"></div>
+              <div class="swatch-name">Neutral 200</div>
+              <span class="swatch-var">--neutral-200</span>
+              <div class="swatch-hex">#EBEBEB</div>
+            </div>
+            <div class="swatch">
+              <div class="swatch-tile" style="background:var(--neutral-300)"></div>
+              <div class="swatch-name">Neutral 300</div>
+              <span class="swatch-var">--neutral-300</span>
+              <div class="swatch-hex">#D4D4D4</div>
+            </div>
+            <div class="swatch">
+              <div class="swatch-tile" style="background:var(--neutral-400)"></div>
+              <div class="swatch-name">Neutral 400</div>
+              <span class="swatch-var">--neutral-400</span>
+              <div class="swatch-hex">#B0B0B0</div>
+            </div>
+            <div class="swatch">
+              <div class="swatch-tile" style="background:var(--neutral-500)"></div>
+              <div class="swatch-name">Neutral 500</div>
+              <span class="swatch-var">--neutral-500</span>
+              <div class="swatch-hex">#888888</div>
+            </div>
+            <div class="swatch">
+              <div class="swatch-tile" style="background:var(--neutral-600)"></div>
+              <div class="swatch-name">Neutral 600</div>
+              <span class="swatch-var">--neutral-600</span>
+              <div class="swatch-hex">#666666</div>
+            </div>
+            <div class="swatch">
+              <div class="swatch-tile" style="background:var(--neutral-700)"></div>
+              <div class="swatch-name">Neutral 700</div>
+              <span class="swatch-var">--neutral-700</span>
+              <div class="swatch-hex">#444444</div>
+            </div>
+            <div class="swatch">
+              <div class="swatch-tile" style="background:var(--neutral-800)"></div>
+              <div class="swatch-name">Neutral 800</div>
+              <span class="swatch-var">--neutral-800</span>
+              <div class="swatch-hex">#2A2A2A</div>
+            </div>
+            <div class="swatch">
+              <div class="swatch-tile" style="background:var(--neutral-900)"></div>
+              <div class="swatch-name">Neutral 900</div>
+              <span class="swatch-var">--neutral-900</span>
+              <div class="swatch-hex">#1A1A1A</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Semantic -->
+        <div class="swatch-group">
+          <div class="swatch-group-label">Semantic</div>
+          <div class="swatch-row">
+            <div class="swatch">
+              <div class="swatch-tile" style="background:var(--color-success)"></div>
+              <div class="swatch-name">Success</div>
+              <span class="swatch-var">--color-success</span>
+              <div class="swatch-hex">#1D9E75</div>
+            </div>
+            <div class="swatch">
+              <div class="swatch-tile" style="background:var(--color-warning)"></div>
+              <div class="swatch-name">Warning</div>
+              <span class="swatch-var">--color-warning</span>
+              <div class="swatch-hex">#E09515</div>
+            </div>
+            <div class="swatch">
+              <div class="swatch-tile" style="background:var(--color-danger)"></div>
+              <div class="swatch-name">Danger</div>
+              <span class="swatch-var">--color-danger</span>
+              <div class="swatch-hex">#E03232</div>
+            </div>
+            <div class="swatch">
+              <div class="swatch-tile" style="background:var(--color-info)"></div>
+              <div class="swatch-name">Info</div>
+              <span class="swatch-var">--color-info</span>
+              <div class="swatch-hex">#2D7DD2</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Surface -->
+        <div class="swatch-group">
+          <div class="swatch-group-label">Surface</div>
+          <div class="swatch-row">
+            <div class="swatch">
+              <div class="swatch-tile" style="background:var(--surface-primary);border:1.5px solid var(--neutral-200)!important"></div>
+              <div class="swatch-name">Surface Primary</div>
+              <span class="swatch-var">--surface-primary</span>
+              <div class="swatch-hex">#FFFFFF</div>
+            </div>
+            <div class="swatch">
+              <div class="swatch-tile" style="background:var(--surface-secondary)"></div>
+              <div class="swatch-name">Surface Secondary</div>
+              <span class="swatch-var">--surface-secondary</span>
+              <div class="swatch-hex">#F5F5F5</div>
+            </div>
+            <div class="swatch">
+              <div class="swatch-tile" style="background:var(--surface-tertiary)"></div>
+              <div class="swatch-name">Surface Tertiary</div>
+              <span class="swatch-var">--surface-tertiary</span>
+              <div class="swatch-hex">#EBEBEB</div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /colours -->
+
+
+      <!-- ── TYPOGRAPHY ── -->
+      <div id="typography" class="subsection">
+        <div class="subsection-title">Typography</div>
+
+        <!-- Font family block -->
+        <div style="padding:14px 18px;background:var(--surface-primary);border:1.5px solid var(--neutral-200);border-radius:var(--radius-md);margin-bottom:20px;display:flex;align-items:center;gap:16px">
+          <div>
+            <div style="font-size:var(--text-micro);font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--neutral-400);margin-bottom:3px">Font Family</div>
+            <code style="font-size:12px;color:var(--neutral-700)">--font-family: 'Work Sans', -apple-system, 'Helvetica Neue', sans-serif</code>
+          </div>
+        </div>
+
+        <div class="type-scale">
+          <div class="type-row">
+            <div class="type-sample" style="font-size:var(--text-display);font-weight:800;letter-spacing:-0.03em;line-height:1.15">Weekly Planner</div>
+            <div class="type-meta">
+              <span class="type-var">--text-display</span>
+              <span class="type-detail">28px · 800 · lh 1.15</span>
+            </div>
+          </div>
+          <div class="type-row">
+            <div class="type-sample" style="font-size:var(--text-h1);font-weight:800;letter-spacing:-0.025em;line-height:1.2">Recipe Library</div>
+            <div class="type-meta">
+              <span class="type-var">--text-h1</span>
+              <span class="type-detail">22px · 800 · lh 1.2</span>
+            </div>
+          </div>
+          <div class="type-row">
+            <div class="type-sample" style="font-size:var(--text-h2);font-weight:700;letter-spacing:-0.02em;line-height:1.25">Shopping List</div>
+            <div class="type-meta">
+              <span class="type-var">--text-h2</span>
+              <span class="type-detail">18px · 700 · lh 1.25</span>
+            </div>
+          </div>
+          <div class="type-row">
+            <div class="type-sample" style="font-size:var(--text-h3);font-weight:700;letter-spacing:-0.015em;line-height:1.3">Ingredients</div>
+            <div class="type-meta">
+              <span class="type-var">--text-h3</span>
+              <span class="type-detail">16px · 700 · lh 1.3</span>
+            </div>
+          </div>
+          <div class="type-row">
+            <div class="type-sample" style="font-size:var(--text-body);font-weight:400;line-height:1.5">Add this recipe to your weekly meal plan. Serves 4 — ready in 30 minutes.</div>
+            <div class="type-meta">
+              <span class="type-var">--text-body</span>
+              <span class="type-detail">15px · 400 · lh 1.5</span>
+            </div>
+          </div>
+          <div class="type-row">
+            <div class="type-sample" style="font-size:var(--text-small);font-weight:400;line-height:1.5;color:var(--neutral-600)">25 mins · Serves 4 · Vegetarian · Ottolenghi Simple p.48</div>
+            <div class="type-meta">
+              <span class="type-var">--text-small</span>
+              <span class="type-detail">13px · 400 · lh 1.5</span>
+            </div>
+          </div>
+          <div class="type-row">
+            <div class="type-sample" style="font-size:var(--text-micro);font-weight:700;line-height:1.4;text-transform:uppercase;letter-spacing:0.1em;color:var(--neutral-500)">Week of 28 Apr — Section Label</div>
+            <div class="type-meta">
+              <span class="type-var">--text-micro</span>
+              <span class="type-detail">11px · 700 · lh 1.4</span>
+            </div>
+          </div>
+        </div>
+      </div><!-- /typography -->
+
+
+      <!-- ── SPACING ── -->
+      <div id="spacing" class="subsection">
+        <div class="subsection-title">Spacing</div>
+        <div class="spacing-table">
+          <div class="spacing-row">
+            <div class="spacing-label"><span class="spacing-var">--space-1</span><span class="spacing-val">4px</span></div>
+            <div class="spacing-bar" style="width:var(--space-1)"></div>
+          </div>
+          <div class="spacing-row">
+            <div class="spacing-label"><span class="spacing-var">--space-2</span><span class="spacing-val">8px</span></div>
+            <div class="spacing-bar" style="width:var(--space-2)"></div>
+          </div>
+          <div class="spacing-row">
+            <div class="spacing-label"><span class="spacing-var">--space-3</span><span class="spacing-val">12px</span></div>
+            <div class="spacing-bar" style="width:var(--space-3)"></div>
+          </div>
+          <div class="spacing-row">
+            <div class="spacing-label"><span class="spacing-var">--space-4</span><span class="spacing-val">16px</span></div>
+            <div class="spacing-bar" style="width:var(--space-4)"></div>
+          </div>
+          <div class="spacing-row">
+            <div class="spacing-label"><span class="spacing-var">--space-5</span><span class="spacing-val">20px</span></div>
+            <div class="spacing-bar" style="width:var(--space-5)"></div>
+          </div>
+          <div class="spacing-row">
+            <div class="spacing-label"><span class="spacing-var">--space-6</span><span class="spacing-val">24px</span></div>
+            <div class="spacing-bar" style="width:var(--space-6)"></div>
+          </div>
+          <div class="spacing-row">
+            <div class="spacing-label"><span class="spacing-var">--space-8</span><span class="spacing-val">32px</span></div>
+            <div class="spacing-bar" style="width:var(--space-8)"></div>
+          </div>
+          <div class="spacing-row">
+            <div class="spacing-label"><span class="spacing-var">--space-10</span><span class="spacing-val">40px</span></div>
+            <div class="spacing-bar" style="width:var(--space-10)"></div>
+          </div>
+          <div class="spacing-row">
+            <div class="spacing-label"><span class="spacing-var">--space-12</span><span class="spacing-val">48px</span></div>
+            <div class="spacing-bar" style="width:var(--space-12)"></div>
+          </div>
+          <div class="spacing-row">
+            <div class="spacing-label"><span class="spacing-var">--space-16</span><span class="spacing-val">64px</span></div>
+            <div class="spacing-bar" style="width:var(--space-16)"></div>
+          </div>
+        </div>
+      </div><!-- /spacing -->
+
+
+      <!-- ── BORDER RADIUS ── -->
+      <div id="radius" class="subsection">
+        <div class="subsection-title">Border Radius</div>
+        <div class="radius-row">
+          <div class="radius-item">
+            <div class="radius-tile" style="width:72px;height:72px;border-radius:var(--radius-sm)"></div>
+            <div class="radius-meta">
+              <span class="radius-var">--radius-sm</span>
+              <span class="radius-val">5px</span>
+            </div>
+          </div>
+          <div class="radius-item">
+            <div class="radius-tile" style="width:72px;height:72px;border-radius:var(--radius-md)"></div>
+            <div class="radius-meta">
+              <span class="radius-var">--radius-md</span>
+              <span class="radius-val">10px</span>
+            </div>
+          </div>
+          <div class="radius-item">
+            <div class="radius-tile" style="width:72px;height:72px;border-radius:var(--radius-lg)"></div>
+            <div class="radius-meta">
+              <span class="radius-var">--radius-lg</span>
+              <span class="radius-val">20px</span>
+            </div>
+          </div>
+          <div class="radius-item">
+            <div class="radius-tile" style="width:120px;height:36px;border-radius:var(--radius-full)"></div>
+            <div class="radius-meta">
+              <span class="radius-var">--radius-full</span>
+              <span class="radius-val">9999px · pill</span>
+            </div>
+          </div>
+        </div>
+      </div><!-- /radius -->
+
+
+      <!-- ── SHADOWS ── -->
+      <div id="shadows" class="subsection">
+        <div class="subsection-title">Shadows</div>
+        <!-- Surround cards in a tinted background so shadows are visible -->
+        <div style="background:var(--surface-secondary);padding:40px 32px;border-radius:var(--radius-lg);border:1.5px solid var(--neutral-200)">
+          <div class="shadow-row">
+            <div class="shadow-item">
+              <div class="shadow-card" style="box-shadow:var(--shadow-none);border:1.5px solid var(--neutral-200)">None</div>
+              <div class="shadow-meta">
+                <span class="shadow-var">--shadow-none</span>
+                <span class="shadow-name">No shadow</span>
+              </div>
+            </div>
+            <div class="shadow-item">
+              <div class="shadow-card" style="box-shadow:var(--shadow-subtle)">Subtle</div>
+              <div class="shadow-meta">
+                <span class="shadow-var">--shadow-subtle</span>
+                <span class="shadow-name">Cards, rows</span>
+              </div>
+            </div>
+            <div class="shadow-item">
+              <div class="shadow-card" style="box-shadow:var(--shadow-elevated)">Elevated</div>
+              <div class="shadow-meta">
+                <span class="shadow-var">--shadow-elevated</span>
+                <span class="shadow-name">Sheets, modals</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /shadows -->
+
+    </section><!-- /tokens -->
+
+
+    <!-- ════════════════════════════════════════
+         SECTION 2: ICONS
+    ════════════════════════════════════════ -->
+    <section id="icons" class="section">
+      <div class="section-eyebrow">02 — Reference</div>
+      <div class="section-title">Icons</div>
+      <div class="section-desc">Inline SVG icons used across the app. All drawn on a 24 × 24 grid with 1.8px stroke weight, rounded linecaps and joins. Hover to preview the brand tint.</div>
+
+      <div class="icon-grid">
+
+        <!-- Planner / grid -->
+        <div class="icon-item">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+            <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+            <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+            <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+          </svg>
+          <span class="icon-name">Planner</span>
+        </div>
+
+        <!-- Book / library -->
+        <div class="icon-item">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+          </svg>
+          <span class="icon-name">Library</span>
+        </div>
+
+        <!-- Shopping bag -->
+        <div class="icon-item">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <path d="M16 10a4 4 0 0 1-8 0"/>
+          </svg>
+          <span class="icon-name">Shop</span>
+        </div>
+
+        <!-- Gear / settings -->
+        <div class="icon-item">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+          <span class="icon-name">Settings</span>
+        </div>
+
+        <!-- Plus -->
+        <div class="icon-item">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          <span class="icon-name">Plus</span>
+        </div>
+
+        <!-- Search -->
+        <div class="icon-item">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <span class="icon-name">Search</span>
+        </div>
+
+        <!-- Chevron right -->
+        <div class="icon-item">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+          <span class="icon-name">Chevron Right</span>
+        </div>
+
+        <!-- Chevron left -->
+        <div class="icon-item">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+          <span class="icon-name">Chevron Left</span>
+        </div>
+
+        <!-- Check -->
+        <div class="icon-item">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          <span class="icon-name">Check</span>
+        </div>
+
+        <!-- Trash -->
+        <div class="icon-item">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+          </svg>
+          <span class="icon-name">Trash</span>
+        </div>
+
+        <!-- Close / X -->
+        <div class="icon-item">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+          <span class="icon-name">Close</span>
+        </div>
+
+        <!-- Share / upload -->
+        <div class="icon-item">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+            <polyline points="16 6 12 2 8 6"/>
+            <line x1="12" y1="2" x2="12" y2="15"/>
+          </svg>
+          <span class="icon-name">Share</span>
+        </div>
+
+        <!-- Camera -->
+        <div class="icon-item">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+            <circle cx="12" cy="13" r="4"/>
+          </svg>
+          <span class="icon-name">Camera</span>
+        </div>
+
+        <!-- Link -->
+        <div class="icon-item">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+          </svg>
+          <span class="icon-name">Link</span>
+        </div>
+
+      </div>
+    </section><!-- /icons -->
+
+
+    <!-- Footer -->
+    <footer class="page-footer">
+      <span style="font-weight:600;color:var(--neutral-600)">Meal Planner Design System</span>
+      <!-- Edit the date below manually when you update this file -->
+      <span>Last updated: 5 May 2025</span>
+    </footer>
+
+  </main>
+</div>
+
+</body>
+</html>
