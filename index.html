@@ -467,12 +467,13 @@ button { cursor: pointer; border: none; background: none; }
    ████  FULL SHEET: ADD RECIPE  ████
 ───────────────────────────────────────────── */
 .add-sheet-hdr {
-  display: flex; align-items: center; justify-content: space-between;
+  display: flex; align-items: center;
   padding: 48px 16px 12px;
   border-bottom: 1.5px solid #ebebeb;
   flex-shrink: 0;
+  gap: 4px;
 }
-.add-sheet-title { font-size: 17px; font-weight: 800; letter-spacing: -0.02em; }
+.add-sheet-title { flex: 1; text-align: center; font-size: 17px; font-weight: 800; letter-spacing: -0.02em; }
 .close-btn {
   width: 28px; height: 28px;
   border: 1.5px solid #ccc; border-radius: 50%;
@@ -850,6 +851,156 @@ button { cursor: pointer; border: none; background: none; }
 }
 
 /* ─────────────────────────────────────────────
+   SETTINGS BUTTON (meatball icon in headers)
+───────────────────────────────────────────── */
+.settings-btn {
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 8px;
+  font-size: 19px; font-weight: 900; letter-spacing: 1px; color: #555;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+  transition: background 0.12s;
+  flex-shrink: 0;
+  background: none; border: none; line-height: 1;
+}
+.settings-btn:active { background: #f0f0f0; }
+
+/* ─────────────────────────────────────────────
+   SETTINGS SHEET (slides from right)
+───────────────────────────────────────────── */
+.settings-sheet {
+  position: absolute;
+  inset: 0;
+  background: #f2f2f7;
+  z-index: 95;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(102%);
+  transition: transform 0.26s cubic-bezier(0.32, 0.72, 0, 1);
+  will-change: transform;
+}
+.settings-sheet.open { transform: translateX(0); }
+
+.settings-hdr {
+  display: flex; align-items: center;
+  padding: 48px 16px 12px;
+  border-bottom: 1.5px solid #e0e0e0;
+  flex-shrink: 0;
+  background: #fff;
+}
+.back-btn {
+  display: flex; align-items: center; gap: 1px;
+  font-size: 15px; font-weight: 600; color: #333;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+  padding: 4px 0;
+  background: none; border: none;
+  min-width: 60px;
+}
+.back-btn:active { opacity: 0.6; }
+.settings-hdr-title {
+  font-size: 17px; font-weight: 800; letter-spacing: -0.02em;
+  flex: 1; text-align: center;
+}
+
+.settings-scroll {
+  flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+.settings-scroll::-webkit-scrollbar { display: none; }
+
+.settings-section-hdr {
+  font-size: 10px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  color: #999; background: #f2f2f7;
+  padding: 20px 16px 6px;
+  border-bottom: 1px solid #e8e8e8;
+}
+.settings-section-hdr.first { padding-top: 10px; }
+
+.settings-profile-block {
+  display: flex; align-items: center; gap: 14px;
+  padding: 16px 16px;
+  background: #fff;
+  border-bottom: 1px solid #f0f0f0;
+}
+.profile-avatar {
+  width: 52px; height: 52px;
+  background: #1a1a1a; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; font-weight: 700; color: #fff;
+  flex-shrink: 0;
+  letter-spacing: -0.5px;
+}
+.profile-info { flex: 1; }
+.profile-name { font-size: 16px; font-weight: 700; margin-bottom: 2px; }
+.profile-email { font-size: 13px; color: #999; }
+
+.settings-row {
+  display: flex; align-items: center;
+  padding: 14px 16px;
+  background: #fff;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+  transition: background 0.1s;
+}
+.settings-row:active { background: #f5f5f5; }
+.settings-row.no-tap:active { background: #fff; }
+.settings-row-label { flex: 1; font-size: 14px; color: #1a1a1a; }
+.settings-row-value { font-size: 13px; color: #999; margin-right: 6px; }
+.settings-row-chevron { color: #ccc; font-size: 18px; line-height: 1; }
+.settings-row.danger .settings-row-label { color: #e03232; }
+.settings-row.danger .settings-row-chevron { color: #e9a0a0; }
+
+.settings-stepper {
+  display: flex; align-items: center; gap: 10px;
+}
+.stepper-btn {
+  width: 30px; height: 30px;
+  border: 1.5px solid #d4d4d4; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; line-height: 1; color: #555; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.12s; background: none; flex-shrink: 0;
+}
+.stepper-btn:active { background: #f0f0f0; }
+.stepper-val { font-size: 16px; font-weight: 700; min-width: 24px; text-align: center; }
+
+.settings-toggle {
+  display: flex; background: #e8e8e8; border-radius: 8px; padding: 2px;
+}
+.toggle-opt {
+  padding: 5px 11px; border-radius: 6px;
+  font-size: 12px; font-weight: 600; color: #888;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+  transition: all 0.15s; user-select: none;
+}
+.toggle-opt.active { background: #fff; color: #1a1a1a; box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
+
+.settings-version {
+  text-align: center;
+  font-size: 12px; color: #bbb;
+  padding: 28px 16px 44px;
+}
+
+.profile-sheet-title {
+  font-size: 16px; font-weight: 800;
+  padding: 12px 16px 0;
+  letter-spacing: -0.01em;
+}
+.profile-sheet-body {
+  padding: 14px 16px 20px;
+}
+.profile-save-btn {
+  width: 100%; padding: 14px;
+  background: #1a1a1a; color: #fff;
+  border-radius: 11px; border: none;
+  font-size: 15px; font-weight: 700;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.15s; margin-top: 8px;
+}
+.profile-save-btn:active { opacity: 0.78; }
+
+/* ─────────────────────────────────────────────
    RESPONSIVE: fill screen on actual mobile
 ───────────────────────────────────────────── */
 @media (max-width: 440px) {
@@ -897,6 +1048,7 @@ button { cursor: pointer; border: none; background: none; }
             <div class="week-arrow">‹</div>
             <div class="week-arrow">›</div>
           </div>
+          <button class="settings-btn" onclick="APP.openSettings()">···</button>
         </div>
         <button class="gen-btn inactive" id="js-gen-btn" onclick="APP.goToShop()">Generate shopping list</button>
       </div>
@@ -920,6 +1072,7 @@ button { cursor: pointer; border: none; background: none; }
         <div class="lib-hdr-row">
           <div class="lib-title">Recipes</div>
           <div class="sort-btn">Sort ↕</div>
+          <button class="settings-btn" onclick="APP.openSettings()">···</button>
         </div>
         <div class="search-bar">
           <div class="search-icon"></div>
@@ -938,6 +1091,7 @@ button { cursor: pointer; border: none; background: none; }
       <div class="shop-hdr">
         <div class="shop-title">Shopping list</div>
         <div class="share-btn" onclick="APP.shareList()">↑</div>
+        <button class="settings-btn" onclick="APP.openSettings()" style="margin-left:4px">···</button>
       </div>
       <div class="shop-subtitle" id="js-shop-sub">Week of 28 Apr – 4 May · 0 meals planned</div>
       <div class="shop-progress">
@@ -976,7 +1130,7 @@ button { cursor: pointer; border: none; background: none; }
   <div class="full-sheet" id="js-detail-sheet">
     <div class="detail-hero" id="js-detail-hero">
       <div class="hero-overlay-btn" style="left:14px" onclick="APP.closeDetail()">‹</div>
-      <div class="hero-overlay-btn" style="right:14px">···</div>
+      <div class="hero-overlay-btn" style="right:14px" onclick="APP.openSettings()">···</div>
       recipe photo
     </div>
     <div class="detail-scroll">
@@ -990,8 +1144,9 @@ button { cursor: pointer; border: none; background: none; }
   <!-- ══════ FULL SHEET: ADD RECIPE ══════ -->
   <div class="full-sheet" id="js-add-sheet">
     <div class="add-sheet-hdr">
-      <div class="add-sheet-title">Add Recipe</div>
       <div class="close-btn" onclick="APP.closeAddSheet()">✕</div>
+      <div class="add-sheet-title">Add Recipe</div>
+      <button class="settings-btn" onclick="APP.openSettings()">···</button>
     </div>
     <div class="cap-tabs">
       <div class="cap-tab" data-mode="url" onclick="APP.setCapMode('url')">
@@ -1096,6 +1251,119 @@ button { cursor: pointer; border: none; background: none; }
       <div class="slot-modal-cancel" onclick="APP.closeSlotPicker()">Cancel</div>
     </div>
   </div>
+
+  <!-- ══════ SETTINGS SHEET ══════ -->
+  <div id="js-settings-sheet" class="settings-sheet">
+    <div class="settings-hdr">
+      <button class="back-btn" onclick="APP.closeSettings()">‹ Back</button>
+      <div class="settings-hdr-title">Settings</div>
+      <div style="min-width:60px"></div>
+    </div>
+    <div class="settings-scroll">
+
+      <!-- Account -->
+      <div class="settings-section-hdr first">Account</div>
+      <div class="settings-profile-block">
+        <div class="profile-avatar" id="js-profile-avatar">CB</div>
+        <div class="profile-info">
+          <div class="profile-name" id="js-profile-name">Callum Buchanan</div>
+          <div class="profile-email" id="js-profile-email">callum@example.com</div>
+        </div>
+      </div>
+      <div class="settings-row" onclick="APP.openEditProfile()">
+        <div class="settings-row-label">Edit profile</div>
+        <div class="settings-row-chevron">›</div>
+      </div>
+      <div class="settings-row" onclick="APP.changePassword()">
+        <div class="settings-row-label">Change password</div>
+        <div class="settings-row-chevron">›</div>
+      </div>
+      <div class="settings-row danger" onclick="APP.promptSignOut()">
+        <div class="settings-row-label">Sign out</div>
+        <div class="settings-row-chevron">›</div>
+      </div>
+
+      <!-- Preferences -->
+      <div class="settings-section-hdr">Preferences</div>
+      <div class="settings-row no-tap">
+        <div class="settings-row-label">Default serves</div>
+        <div class="settings-stepper">
+          <button class="stepper-btn" onclick="APP.updateDefaultServes(-1)">−</button>
+          <div class="stepper-val" id="js-pref-serves-val">2</div>
+          <button class="stepper-btn" onclick="APP.updateDefaultServes(1)">+</button>
+        </div>
+      </div>
+      <div class="settings-row no-tap">
+        <div class="settings-row-label">Week starts on</div>
+        <div class="settings-toggle">
+          <div class="toggle-opt week-toggle-opt active" data-val="monday" onclick="APP.toggleWeekStart('monday')">Mon</div>
+          <div class="toggle-opt week-toggle-opt" data-val="sunday" onclick="APP.toggleWeekStart('sunday')">Sun</div>
+        </div>
+      </div>
+      <div class="settings-row no-tap">
+        <div class="settings-row-label">Measurement units</div>
+        <div class="settings-toggle">
+          <div class="toggle-opt units-toggle-opt active" data-val="metric" onclick="APP.toggleUnits('metric')">Metric</div>
+          <div class="toggle-opt units-toggle-opt" data-val="imperial" onclick="APP.toggleUnits('imperial')">Imperial</div>
+        </div>
+      </div>
+
+      <!-- About -->
+      <div class="settings-section-hdr">About</div>
+      <div class="settings-row" onclick="APP.showToast('Opening feedback form…')">
+        <div class="settings-row-label">Give feedback</div>
+        <div class="settings-row-chevron">›</div>
+      </div>
+      <div class="settings-row" onclick="APP.showToast('Thank you for your support')">
+        <div class="settings-row-label">Rate the app</div>
+        <div class="settings-row-chevron">›</div>
+      </div>
+      <div class="settings-row" onclick="APP.showToast('Opening privacy policy…')">
+        <div class="settings-row-label">Privacy policy</div>
+        <div class="settings-row-chevron">›</div>
+      </div>
+      <div class="settings-row" onclick="APP.showToast('Opening terms of service…')">
+        <div class="settings-row-label">Terms of service</div>
+        <div class="settings-row-chevron">›</div>
+      </div>
+
+      <div class="settings-version">v0.1.0 prototype</div>
+    </div><!-- /settings-scroll -->
+
+    <!-- Edit Profile bottom sheet (nested — covers settings sheet) -->
+    <div class="bsheet-overlay" id="js-edit-profile-overlay" onclick="APP.handleEditProfileBg(event)">
+      <div class="bottom-sheet">
+        <div class="sheet-handle"></div>
+        <div class="profile-sheet-title">Edit profile</div>
+        <div class="profile-sheet-body">
+          <div class="field">
+            <div class="field-lbl">Display name</div>
+            <input class="field-inp" type="text" id="js-edit-name" placeholder="Your name">
+          </div>
+          <div class="field">
+            <div class="field-lbl">Email address</div>
+            <input class="field-inp" type="email" id="js-edit-email" placeholder="you@example.com">
+          </div>
+          <button class="profile-save-btn" onclick="APP.saveProfile()">Save changes</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sign out confirmation modal (nested — covers settings sheet) -->
+    <div class="modal-overlay" id="js-signout-modal" onclick="APP.handleSignOutBg(event)">
+      <div class="modal-card">
+        <div style="padding:20px 20px 6px">
+          <div style="font-size:17px;font-weight:800;margin-bottom:8px">Sign out</div>
+          <div style="font-size:14px;color:#666;line-height:1.5">Are you sure you want to sign out?</div>
+        </div>
+        <div style="display:flex;gap:10px;padding:14px 20px 20px">
+          <button onclick="APP.cancelSignOut()" style="flex:1;padding:13px;border:1.5px solid #d4d4d4;border-radius:10px;font-size:14px;font-weight:600;color:#555;background:#fff;cursor:pointer;font-family:inherit">Cancel</button>
+          <button onclick="APP.confirmSignOut()" style="flex:1;padding:13px;background:#e03232;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Sign out</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /settings-sheet -->
 
   <!-- TOAST -->
   <div class="toast" id="js-toast"></div>
@@ -1304,6 +1572,28 @@ function persist() {
   localStorage.setItem('mp_checked',  JSON.stringify(S.checked));
   localStorage.setItem('mp_recipes',  JSON.stringify(S.recipes));
   localStorage.setItem('mp_shop',     JSON.stringify(S.shopItems));
+}
+
+function loadSettings() {
+  return {
+    profileName:   localStorage.getItem('mealplanner_settings_profile_name')    || 'Callum Buchanan',
+    profileEmail:  localStorage.getItem('mealplanner_settings_profile_email')   || 'callum@example.com',
+    defaultServes: parseInt(localStorage.getItem('mealplanner_settings_default_serves')) || 2,
+    weekStartsOn:  localStorage.getItem('mealplanner_settings_week_starts_on')  || 'monday',
+    units:         localStorage.getItem('mealplanner_settings_units')           || 'metric',
+  };
+}
+
+function persistSettings(cfg) {
+  localStorage.setItem('mealplanner_settings_profile_name',    cfg.profileName);
+  localStorage.setItem('mealplanner_settings_profile_email',   cfg.profileEmail);
+  localStorage.setItem('mealplanner_settings_default_serves',  cfg.defaultServes);
+  localStorage.setItem('mealplanner_settings_week_starts_on',  cfg.weekStartsOn);
+  localStorage.setItem('mealplanner_settings_units',           cfg.units);
+}
+
+function getInitials(name) {
+  return name.trim().split(/\s+/).map(n => n[0]).join('').toUpperCase().slice(0, 2);
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -1757,6 +2047,98 @@ const APP = (() => {
     }
   }
 
+  // ── Settings ───────────────────────────────────
+  function openSettings() {
+    renderSettings();
+    document.getElementById('js-settings-sheet').classList.add('open');
+  }
+
+  function closeSettings() {
+    document.getElementById('js-settings-sheet').classList.remove('open');
+  }
+
+  function renderSettings() {
+    const cfg = loadSettings();
+    document.getElementById('js-profile-avatar').textContent = getInitials(cfg.profileName);
+    document.getElementById('js-profile-name').textContent   = cfg.profileName;
+    document.getElementById('js-profile-email').textContent  = cfg.profileEmail;
+    document.getElementById('js-pref-serves-val').textContent = cfg.defaultServes;
+    document.querySelectorAll('.week-toggle-opt').forEach(el =>
+      el.classList.toggle('active', el.dataset.val === cfg.weekStartsOn));
+    document.querySelectorAll('.units-toggle-opt').forEach(el =>
+      el.classList.toggle('active', el.dataset.val === cfg.units));
+  }
+
+  function openEditProfile() {
+    const cfg = loadSettings();
+    document.getElementById('js-edit-name').value  = cfg.profileName;
+    document.getElementById('js-edit-email').value = cfg.profileEmail;
+    document.getElementById('js-edit-profile-overlay').classList.add('open');
+  }
+
+  function closeEditProfile() {
+    document.getElementById('js-edit-profile-overlay').classList.remove('open');
+  }
+
+  function handleEditProfileBg(e) {
+    if (e.target === document.getElementById('js-edit-profile-overlay')) closeEditProfile();
+  }
+
+  function saveProfile() {
+    const name  = document.getElementById('js-edit-name').value.trim();
+    const email = document.getElementById('js-edit-email').value.trim();
+    if (!name) { showToast('Please enter a display name'); return; }
+    const cfg = loadSettings();
+    cfg.profileName  = name;
+    cfg.profileEmail = email;
+    persistSettings(cfg);
+    closeEditProfile();
+    renderSettings();
+    showToast('Profile updated');
+  }
+
+  function changePassword() {
+    showToast('Password reset email sent');
+  }
+
+  function promptSignOut() {
+    document.getElementById('js-signout-modal').classList.add('open');
+  }
+
+  function cancelSignOut() {
+    document.getElementById('js-signout-modal').classList.remove('open');
+  }
+
+  function handleSignOutBg(e) {
+    if (e.target === document.getElementById('js-signout-modal')) cancelSignOut();
+  }
+
+  function confirmSignOut() {
+    document.getElementById('js-signout-modal').classList.remove('open');
+    showToast('Signed out');
+  }
+
+  function updateDefaultServes(delta) {
+    const cfg = loadSettings();
+    cfg.defaultServes = Math.max(1, Math.min(20, cfg.defaultServes + delta));
+    persistSettings(cfg);
+    renderSettings();
+  }
+
+  function toggleWeekStart(val) {
+    const cfg = loadSettings();
+    cfg.weekStartsOn = val;
+    persistSettings(cfg);
+    renderSettings();
+  }
+
+  function toggleUnits(val) {
+    const cfg = loadSettings();
+    cfg.units = val;
+    persistSettings(cfg);
+    renderSettings();
+  }
+
   // ── Toast ──────────────────────────────────────
   function showToast(msg) {
     const el = document.getElementById('js-toast');
@@ -1776,6 +2158,10 @@ const APP = (() => {
     renderLibrary, toggleFilter,
     openAddSheet, closeAddSheet, setCapMode, addIngRow, saveRecipe, stubImport,
     renderShop, toggleItem, addManualItem, commitManual, shareList,
+    openSettings, closeSettings,
+    openEditProfile, closeEditProfile, handleEditProfileBg, saveProfile,
+    changePassword, promptSignOut, cancelSignOut, handleSignOutBg, confirmSignOut,
+    updateDefaultServes, toggleWeekStart, toggleUnits,
     showToast,
   };
 
